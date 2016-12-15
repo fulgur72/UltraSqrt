@@ -138,14 +138,14 @@ adjust_prob := proc(sq::integer, cycl::integer)
 <Group labelreference="L3" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2 )
-adjust_prob(2, 301051);</Text-field>
+adjust_prob(2, 103811);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(2)
-binar_lead: 0xB504F333F9DE6484
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(2)</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">binar_lead: 0xB504F333F9DE6484
 binar_next: 0x597D89B3754ABE9F
-Adjust 0x probability:  54.007781 % (~   162591 cycles)
-Adjust 1x probability:  45.992219 % (~   138460 cycles)
+Adjust 0x probability:  54.007781 % (~    56066 cycles)
+Adjust 1x probability:  45.992219 % (~    47745 cycles)
 Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
@@ -225,8 +225,8 @@ Adjust 2x probability:   7.772851 % (~     8069 cycles)</Text-field>
 adjust_prob(2^32-1, 103811);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967295)
-binar_lead: 0xFFFFFFFF7FFFFFFF
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967295)</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">binar_lead: 0xFFFFFFFF7FFFFFFF
 binar_next: 0xDFFFFFFFEFFFFFFF
 Adjust 0x probability:  93.750000 % (~    97323 cycles)
 Adjust 1x probability:   6.250000 % (~     6488 cycles)

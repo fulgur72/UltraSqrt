@@ -34,6 +34,7 @@ ulonlong adapt;
 ulonlong lead_stat, next_stat;
 
 // assembler functions
+int sqrt_init_qword();
 int sqrt_next_guess();
 int sqrt_check_next();
 int sqrt_subtr_next();
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
     // 164,403 QWORDs (64 bit) is needed to carry binary data
     // corresponding to 126,695 groups of 25 decimal digits each
     // because 164403/126695 is (only) slightly more than 25*ln(10)/64*ln(2)
-    dec_len = (arg_len + (25-1)) / 25;
+    dec_len = ((ulonlong)arg_len + (25-1)) / 25;
     len = (164403 * dec_len + (164403-1)) / 126695;
     dec_len *= 2; // 25 digits in two QWORDs
     printf("decimal figures: %8llu\n", 25 * dec_len / 2);
@@ -75,53 +76,15 @@ int main(int argc, char* argv[])
     // start time
     DWORD start_time = GetTickCount();
 
+    // memory allocation base = actual base for rooting; rest = partial result
+    base = (ulonlong*)malloc((dec_len + 2) * sizeof(ulonlong));
+    rest = (ulonlong*)malloc((len + 2) * sizeof(ulonlong));
+    // clean the rest of the lists
+    for (i = 0; i <= len + 1; ++i) base[i] = rest[i] = 0;
+
     // calculate first QWORD of partial result
     num = (ulonlong) arg_num;
-    lead = 1uLL << (64-2);
-    shift = (64/2);
-    // shift fbase so that most significant 1 is in top two bits
-    while (num < lead) {
-        num *= 4;
-        ++shift;
-    }
-    // retract 1st bit from base
-    num -= lead;
-    next = lead / 4;
-    // cycle per all other bits except the last one
-    while (next > 0) {
-        lead += next;
-        if (num >= lead) {
-            num -= lead;
-            lead += next;
-        } else {
-            lead -= next;
-        }
-        num *= 2;
-        next /= 2;
-    }
-    // solve the last bit
-    {
-        lead += 1;
-        if (num >= lead) {
-            num -= lead;
-            next = 1;
-        } else {
-            lead -= 1;
-        }
-        num *= 2;
-        num += next;
-    }
-    // shift frest by 1 bit
-    lead *= 2;
-
-    // memory allocation base = actual base for rooting; rest = partial result
-    base = (ulonlong*) malloc((dec_len+2) * sizeof(ulonlong));
-    rest = (ulonlong*) malloc((len+2)     * sizeof(ulonlong));
-    // set initial QWORDs
-    base[0] = num;
-    rest[0] = lead;
-    // clean the rest of the lists
-    for(i = 1; i <= len+1; ++i) base[i] = rest[i] = 0;
+    sqrt_init_qword();
 
     // reset adapt statistics
     for(i = 0; i <= MAX_ADAPT; ++i) adapt_stat[i] = 0;

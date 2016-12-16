@@ -5,38 +5,35 @@
 
 #include <Windows.h>
 
-typedef unsigned long long ulong;
+typedef unsigned long ulong;
+typedef unsigned long long ulonlong;
 
 // Data used in processing
-// "volatile" members used/modified in asm parts
 
-// square num
-ulong num;
 // decadic and binar sizes
-ulong dec_len, len;
+ulonlong dec_len, len;
+
+// aux variables
+ulonlong num, shift;
+ulonlong lead, next;
 
 // pointers and iterators
-ulong *base, *rest;
-ulong *bas_beg, *bas_end;
-ulong *res_beg, *res_mid, *res_end;
+ulonlong *base, *rest;
+ulonlong *bas_beg, *bas_end;
+ulonlong *res_beg, *res_mid, *res_end;
 
-// lead and next
-volatile ulong lead, next;
-
-// shift and hi+lo decadic parts
-volatile ulong shift;
-volatile ulong hi_dec, lo_dec;
+// hi+lo decadic parts
+ulonlong hi_dec, lo_dec;
 
 // adapt statistics
-const ulong MAX_ADAPT = 2;
-ulong adapt_stat[MAX_ADAPT+1];
-volatile ulong adapt;
+const ulonlong MAX_ADAPT = 2;
+ulonlong adapt_stat[MAX_ADAPT+1];
+ulonlong adapt;
 
 // lead & next statistics
-ulong lead_stat, next_stat;
+ulonlong lead_stat, next_stat;
 
 // assembler functions
-int sqrt_init_qword();
 int sqrt_next_guess();
 int sqrt_check_next();
 int sqrt_subtr_next();
@@ -47,8 +44,8 @@ int sqrt_split_deci();
 int main(int argc, char* argv[])
 {
     // scan and checks parameters
-    const unsigned long MAX_LEN = 10000000uL;
-    unsigned long arg_num, arg_len;
+    const ulong MAX_LEN = 10000000uL;
+    ulong arg_num, arg_len;
     bool isOk = true;
     if(isOk) isOk = (argc == 3);
     if(isOk) isOk = (sscanf_s(argv[1],"%lu",&arg_num) == 1 && arg_num != 0);
@@ -61,8 +58,7 @@ int main(int argc, char* argv[])
     }
 
     // fill QWORD num
-    num = (ulong) arg_num;
-	printf("sqrt(%llu)\n", num);
+    printf("sqrt(%lu)\n", arg_num);
 
     // 164,403 QWORDs (64 bit) is needed to carry binary data
     // corresponding to 126,695 groups of 25 decimal digits each
@@ -74,18 +70,58 @@ int main(int argc, char* argv[])
     printf("binary bytes:    %8llu\n", 8 * len);
 
     // iterators
-    ulong i, j;
+    ulonlong i, j;
 
     // start time
     DWORD start_time = GetTickCount();
 
-    // memory allocation base = actual base for rooting; rest = partial result
-    base = (ulong*) malloc((dec_len+2) * sizeof(ulong));
-    rest = (ulong*) malloc((len+2)     * sizeof(ulong));
-    for(i = 0; i <= len+1; ++i) base[i] = rest[i] = 0;
-
     // calculate first QWORD of partial result
-    sqrt_init_qword();
+    num = (ulonlong) arg_num;
+    lead = 1uLL << (64-2);
+    shift = (64/2);
+    // shift fbase so that most significant 1 is in top two bits
+    while (num < lead) {
+        num *= 4;
+        ++shift;
+    }
+    // retract 1st bit from base
+    num -= lead;
+    next = lead / 4;
+    // cycle per all other bits except the last one
+    while (next > 0) {
+        lead += next;
+        if (num >= lead) {
+            num -= lead;
+            lead += next;
+        } else {
+            lead -= next;
+        }
+        num *= 2;
+        next /= 2;
+    }
+    // solve the last bit
+    {
+        lead += 1;
+        if (num >= lead) {
+            num -= lead;
+            next = 1;
+        } else {
+            lead -= 1;
+        }
+        num *= 2;
+        num += next;
+    }
+    // shift frest by 1 bit
+    lead *= 2;
+
+    // memory allocation base = actual base for rooting; rest = partial result
+    base = (ulonlong*) malloc((dec_len+2) * sizeof(ulonlong));
+    rest = (ulonlong*) malloc((len+2)     * sizeof(ulonlong));
+    // set initial QWORDs
+    base[0] = num;
+    rest[0] = lead;
+    // clean the rest of the lists
+    for(i = 1; i <= len+1; ++i) base[i] = rest[i] = 0;
 
     // reset adapt statistics
     for(i = 0; i <= MAX_ADAPT; ++i) adapt_stat[i] = 0;
@@ -196,7 +232,7 @@ int main(int argc, char* argv[])
     // print the result
     printf("%llu.", base[0]);
     for(i = 1; i < dec_len; i += 2) {
-		if(i % 8 == 1) printf("\n");
+        if(i % 8 == 1) printf("\n");
         printf("%013llu", base[i]);
         printf("%012llu", base[i+1]);
     }

@@ -4,7 +4,6 @@
 ;;
 ;;***************************************************
 
-PUBLIC  ?sqrt_init_qword@@YAHXZ             ; sqrt_init_qword
 PUBLIC  ?sqrt_next_guess@@YAHXZ             ; sqrt_next_guess
 PUBLIC  ?sqrt_check_next@@YAHXZ             ; sqrt_check_next
 PUBLIC  ?sqrt_subtr_next@@YAHXZ             ; sqrt_subtr_next
@@ -15,7 +14,6 @@ PUBLIC  ?sqrt_split_deci@@YAHXZ             ; sqrt_split_deci
 ;;***************************************************
 ;; Extern data from 'UltraSqrt.cpp'
 ;;***************************************************
-EXTRN    ?num@@3_KA         :QWORD          ; num
 EXTRN    ?base@@3PEA_KEA    :QWORD          ; base
 EXTRN    ?rest@@3PEA_KEA    :QWORD          ; rest
 EXTRN    ?bas_beg@@3PEA_KEA :QWORD          ; bas_beg
@@ -23,85 +21,14 @@ EXTRN    ?bas_end@@3PEA_KEA :QWORD          ; bas_end
 EXTRN    ?res_beg@@3PEA_KEA :QWORD          ; res_beg
 EXTRN    ?res_mid@@3PEA_KEA :QWORD          ; res_mid
 EXTRN    ?res_end@@3PEA_KEA :QWORD          ; res_end
-EXTRN    ?lead@@3_KC        :QWORD          ; lead
-EXTRN    ?next@@3_KC        :QWORD          ; next
-EXTRN    ?shift@@3_KC       :QWORD          ; shift
-EXTRN    ?hi_dec@@3_KC      :QWORD          ; hi_dec
-EXTRN    ?lo_dec@@3_KC      :QWORD          ; lo_dec
-EXTRN    ?adapt@@3_KC       :QWORD          ; adapt
+EXTRN    ?lead@@3_KA        :QWORD          ; lead
+EXTRN    ?next@@3_KA        :QWORD          ; next
+EXTRN    ?shift@@3_KA       :QWORD          ; shift
+EXTRN    ?hi_dec@@3_KA      :QWORD          ; hi_dec
+EXTRN    ?lo_dec@@3_KA      :QWORD          ; lo_dec
+EXTRN    ?adapt@@3_KA       :QWORD          ; adapt
 
 _TEXT   SEGMENT
-
-;;***************************************************
-;; PROC sqrt_init_qword
-;;
-;; - shifts 'num' (left so that 'sqrt(num)' contains
-;;   1 in most significant bit of partial result
-;; - conculates first QWORD of the 'sqrt(num)'
-;;   bit by bit
-;;***************************************************
-?sqrt_init_qword@@YAHXZ PROC                ; sqrt_init_qword (==> shift)
-
-    ;; num shift
-        mov rax, ?num@@3_KA                 ; RAX <- num
-        mov rcx, 32                         ; RCX (=shift) <- 32
-        mov rdx, 4000000000000000h          ; RDX <- 010000..00b
-    ;; shift by 2 bits until first 1 bit is on 1st or 2nd most significant pos.
-    l_shift:
-        cmp rax, rdx                        ; cmp RAX, RDX
-        jae l_postshift                     ; if RAX >= RDX goto postshift
-        shl rax, 2                          ; RAX (=num) << 2
-        inc rcx                             ; ++ RCX
-        jmp l_shift                         ; repeat
-    l_postshift:
-    ;; place num in between RBX:RAX so that square root is just in the middle
-        mov ?shift@@3_KC, rcx               ; shift <- RCX
-        mov rbx, rax                        ; extend RAX to RBX:RAX
-        shr rbx, 2                          ; RBX >> 2
-        shl rax, 62                         ; RAX << 62
-    ;; first double-word of square root
-        mov rdx, 0h                         ; RDX:RCX (=partial result) <- 0
-        mov rcx, 0h                         ;
-        mov rdi, 1000000000000000h          ; RDI:RSI (=actual bit in processing) <- 000100..00b
-        mov rsi, 0000000000000000h          ;
-    ;; test if on the next bit is 1 or 0
-    l_loop:
-        add rdx, rdi                        ; RDX:RCX += RDI:RSI - try if next bit can be 1
-        add rcx, rsi                        ;  (no carry expected)
-        cmp rbx, rdx                        ; cmp RBX, RDX
-        ja l_sub                            ; if RBX > RDX goto sub
-        jb l_nosub                          ; if RBX < RDX goto nosub
-        cmp rax, rcx                        ; otherwise cmp RAX, RCX
-        jae l_sub                           ; if RAX >= RCX goto sub
-    ;; if the next bit is 0 - revert try bit
-    l_nosub:
-        sub rdx, rdi                        ; RDX:RCX -= RDI:RSI - revert try
-        sub rcx, rsi                        ;  (no carry expected)
-        jmp l_postsub                       ; goto postsub
-    ;; if the next bit is 1 - subtract and confirm try bit
-    l_sub:
-        sub rax, rcx                        ; RBX:RAX -= RDX:RCX
-        sbb rbx, rdx                        ;  (with carry)
-        add rdx, rdi                        ; RDX:RCX += RDI:RSI - confirm try
-        add rcx, rsi                        ;  (no carry expected)
-    ;; shift of the partial result to fit with the base for next bit calculation
-    l_postsub:
-        shrd rcx, rdx, 1                    ; RDX:RCX >> 1 - shift partial result
-        shr rdx, 1                          ;
-        shrd rsi, rdi, 2                    ; RDI:RSI >> 2 - shift actual processing bit
-        shr rdi, 2                          ;
-        cmp rdi, rsi                        ; cmp RDI, RSI
-        jnz l_loop                          ; repeat until RDI == RSI == 0
-    ;; initiation of the base = actual base and rest = first double-word of the result
-        mov rdi, ?base@@3PEA_KEA            ; move remainder of the rooted number to field "base"
-        mov [rdi], rax                      ; base[0] <- RAX
-        shl rcx, 1                          ; RCX << 1 (multiply by 2 partial result)
-        mov rsi, ?rest@@3PEA_KEA            ; move partial resuilt (multipl. by 2) to field "rest"
-        mov [rsi], rcx                      ; rest[0] <- RDX
-
-    ret 0
-
-?sqrt_init_qword@@YAHXZ ENDP                ; sqrt_init_qword
 
 ;;***************************************************
 ;; PROC sqrt_next_guess
@@ -112,12 +39,12 @@ _TEXT   SEGMENT
 ;;***************************************************
 ?sqrt_next_guess@@YAHXZ PROC                ; sqrt_next_guess (==> next)
 
-    mov rbx, ?lead@@3_KC                    ; RBX <- lead
+    mov rbx, ?lead@@3_KA                    ; RBX <- lead
     mov rdi, ?bas_beg@@3PEA_KEA             ; RDI iter <- bas_beg
     mov rdx, [rdi]                          ; RDX <- base[iter]
     mov rax, [rdi+8h]                       ; RAX <- base[iter+1]
     div rbx                                 ; RDX:RAX / RBX -> RAX, rest RDX
-    mov ?next@@3_KC, rax                    ; next <- RAX
+    mov ?next@@3_KA, rax                    ; next <- RAX
 
     ret 0
 
@@ -133,11 +60,11 @@ _TEXT   SEGMENT
 ?sqrt_check_next@@YAHXZ PROC                ; sqrt_check_next (==> next, adjust)
 
     ;; reset adapt counter and read "next"
-        mov ?adapt@@3_KC, 0                 ; adapt <- 0 (reset)
-        mov rbx, ?next@@3_KC                ; RBX <- next
+        mov ?adapt@@3_KA, 0                 ; adapt <- 0 (reset)
+        mov rbx, ?next@@3_KA                ; RBX <- next
     ;; try next adaptation
     l_adjustnext:
-        inc ?adapt@@3_KC                    ; ++ adapt
+        inc ?adapt@@3_KA                    ; ++ adapt
         inc rbx                             ; ++ RBX (=next)
     ;; check overload
         jz l_adjustback                     ; if ZF goto adjustback
@@ -168,11 +95,11 @@ _TEXT   SEGMENT
         jmp l_postadjust                    ; otherwise goto postadjust
     ;; decrease (back) next DWORD
     l_adjustback:
-        dec ?adapt@@3_KC                    ; -- adjust
+        dec ?adapt@@3_KA                    ; -- adjust
         dec rbx                             ; -- RBX
     ;; update next
     l_postadjust:
-        mov ?next@@3_KC, rbx                ; next <- RBX
+        mov ?next@@3_KA, rbx                ; next <- RBX
 
     ret 0
 
@@ -187,7 +114,7 @@ _TEXT   SEGMENT
 ?sqrt_subtr_next@@YAHXZ PROC                ; sqrt_subtr_next
 
     ;; fill registers
-        mov rbx, ?next@@3_KC                ; RBX <- next
+        mov rbx, ?next@@3_KA                ; RBX <- next
         xor rcx, rcx                        ; RCX (=mul carry) <- 0
         mov rdi, ?bas_end@@3PEA_KEA         ; RDI iter <- bas_end
         mov rsi, ?res_mid@@3PEA_KEA         ; RSI iter <- res_mid
@@ -225,8 +152,8 @@ _TEXT   SEGMENT
 
     ;; download the number of bits into register
         mov rdi, ?res_end@@3PEA_KEA         ; RDI iter <- rest_end
-        mov rcx, ?shift@@3_KC               ; RCX (resp. CL) <- shift
-		mov rdx, ?res_beg@@3PEA_KEA         ; RDX <- res_beg
+        mov rcx, ?shift@@3_KA               ; RCX (resp. CL) <- shift
+        mov rdx, ?res_beg@@3PEA_KEA         ; RDX <- res_beg
     ;; shift the array in the loop
     l_shiftloop:
         cmp rdi, rdx                        ; cmp RDI iter, RDX (=res_beg)
@@ -287,15 +214,15 @@ _TEXT   SEGMENT
 ;;
 ;; - splits 25 digits binary stored in two QWORDs
 ;;   into two decimal groups
-;; - 13 digits in HI QWORD 
+;; - 13 digits in HI QWORD
 ;; - 12 digits in LO QWORD
 ;; - appends these QWORDs to the end of 'base'
 ;;***************************************************
 ?sqrt_split_deci@@YAHXZ PROC                ; sqrt_split_deci
 
-    mov rcx, ?shift@@3_KC                   ; RCX (resp. CL) <- shift
-    mov rax, ?lo_dec@@3_KC                  ; RDX:RAX <- hi_dec:lo_dec
-    mov rdx, ?hi_dec@@3_KC                  ;
+    mov rcx, ?shift@@3_KA                   ; RCX (resp. CL) <- shift
+    mov rax, ?lo_dec@@3_KA                  ; RDX:RAX <- hi_dec:lo_dec
+    mov rdx, ?hi_dec@@3_KA                  ;
     mov rsi, ?res_beg@@3PEA_KEA             ; RSI iter <- res_beg
     mov rdi, ?bas_end@@3PEA_KEA             ; RDI iter <- bas_end
     mov rbx, [rsi]                          ; RBX <- rest[iter(=res_beg)]

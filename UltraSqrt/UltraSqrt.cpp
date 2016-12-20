@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // fill QWORD num
+    // print input 'arg_num' value
     printf("sqrt(%lu)\n", arg_num);
 
     // 164,403 QWORDs (64 bit) is needed to carry binary data
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     // reset adapt statistics
     for(i = 0; i <= MAX_ADAPT; ++i) adapt_stat[i] = 0;
 
-    // cycle for next DWORD of the result
+    // cycle for next QWORD of the result
     for(i = 1; i <= len; ++i) {
 
         // pointers to the beginning and end of the base and rest
@@ -108,12 +108,12 @@ int main(int argc, char* argv[])
             sqrt_next_guess();
         }
 
-        // check next DWORD and try to adapt it
+        // check next QWORD and try to adapt it
         sqrt_check_next();
         // update adapt sttatistics
         ++ adapt_stat[adapt];
 
-        // set next DWORD to the end of partial result
+        // set next QWORD to the end of partial result
         *res_end = next;
 
         // perform main action if "next" > 0

@@ -142,6 +142,7 @@ _TEXT   SEGMENT
         mov rcx, [rdi]                      ; RCX (=check carry) <- base[iter]
         add rdi, 8h                         ; ++ RDI iter
         mov rsi, ?res_beg@@3PEA_KEA         ; RSI iter <- res_beg
+        mov r8,  ?res_mid@@3PEA_KEA         ; R8 stopper <- res_mid
     ;; check if adjusted result is OK
     l_checkloop:
         mov rax, [rsi]                      ; RAX <- rest[iter]
@@ -153,10 +154,10 @@ _TEXT   SEGMENT
         sbb rcx, 0h                         ; RXC -= 0 (with carry)
         jc l_adjustback                     ; if RCX < 0 goto adjustback
         jnz l_adjustnext                    ; if RCX > 0 goto adjustnext
-        mov rcx, rdx                        ; otherwise RCX <- RCX
+        mov rcx, rdx                        ; otherwise RCX <- RDX
         add rdi, 8h                         ; ++ RDI iter
         add rsi, 8h                         ; ++ RSI iter
-        cmp rsi, ?res_mid@@3PEA_KEA         ; cmp RSI iter, res_mid
+        cmp rsi, r8                         ; cmp RSI iter, R8 stopper
         jbe l_checkloop                     ; if iter <= res_mid repeat check
         jmp l_postadjust                    ; otherwise goto postadjust
     ;; decrease (back) next DWORD
@@ -184,6 +185,7 @@ _TEXT   SEGMENT
         xor rcx, rcx                        ; RCX (=mul carry) <- 0
         mov rdi, ?bas_end@@3PEA_KEA         ; RDI iter <- bas_end
         mov rsi, ?res_mid@@3PEA_KEA         ; RSI iter <- res_mid
+        mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
     ;; subtract partial result from base in a loop
     l_mainloop:
         mov rax, [rsi]                      ; RAX <- rest[iter]
@@ -195,7 +197,7 @@ _TEXT   SEGMENT
         mov rcx, rdx                        ; RCX (=mul carry) <- RDX
         sub rdi, 8h                         ; -- RDI iter
         sub rsi, 8h                         ; -- RSI iter
-        cmp rsi, ?res_beg@@3PEA_KEA         ; cmp RSI iter, res_beg
+        cmp rsi, r8                         ; cmp RSI iter, R8 stopper
         jae l_mainloop                      ; if RSI iter >= res_beg repeat mainloop
         sub [rdi], rcx                      ; base[iter(=bas_beg)] -= RCX (last mul carry)
     ;; multiply "next" by 2 (with a carry)
@@ -217,26 +219,22 @@ _TEXT   SEGMENT
 ?sqrt_shift_rest@@YAHXZ PROC                ; sqrt_subtr_next
 
     ;; download the number of bits into register
-        mov rdi, ?res_end@@3PEA_KEA         ; RDI iter <- rest_end
+        mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- rest_end
+        mov rax, [RSI]                      ; RAX <- rest[end]
+		mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
         mov rcx, ?shift@@3_KA               ; RCX (resp. CL) <- shift
-		mov rdx, ?res_beg@@3PEA_KEA         ; RDX <- res_beg
     ;; shift the array in the loop
     l_shiftloop:
-        cmp rdi, rdx                        ; cmp RDI iter, RDX (=res_beg)
-        jz l_shiftend                       ; if iter == res_beg goto shiftend
-        mov rsi, rdi                        ; RSI <- RDI(=iter)
         sub rsi, 8h                         ; -- RSI (=iter-1)
-        mov rax, [rdi]                      ; RAX <- rest[iter]
-        mov rbx, [rsi]                      ; RBX <- rest[iter-1]
+        mov rbx, [rsi]                      ; RBX <- rest[iter]
         shrd rax, rbx, cl                   ; RBX:RAX >> CL
-        mov [rdi], rax                      ; rest[iter] <- RAX
-        mov rdi, rsi                        ; iter RDI <- RSI (=iter-1)
-        jmp l_shiftloop                     ; repeat shiftloop
+        mov [rsi+8h], rax                   ; rest[iter+1] <- RAX
+        mov rax, rbx                        ; RAX <- RBX
+        cmp rsi, r8                         ; cmp RSI iter, R8 stopper
+        ja l_shiftloop                      ; if iter > stopper repeat shiftloop
     ;; shift the last element
-    l_shiftend:
-        mov rax, [rdi]                      ; RAX <- rest[iter(=(res_beg)]
         shr rax, cl                         ; RAX >> CL
-        mov [rdi], rax                      ; rest[iter(=res_beg)] <- RAX
+        mov [rsi], rax                      ; rest[iter(=res_beg)] <- RAX
 
     ret 0
 
@@ -255,9 +253,10 @@ _TEXT   SEGMENT
         mov rbx, 298023223876953125         ; RBX <- 5^25
         xor rcx, rcx                        ; RCX (=mul carry) <- 0
         mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- res_end
+        mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
     ;; loop per actual length of the rest
-        cmp rsi, ?res_beg@@3PEA_KEA         ; cmp RSI iter, res_beg
-        jb l_decend                         ; if iter < res_beg goto decend
+        cmp rsi, r8                         ; cmp RSI iter, res_beg
+        jb l_decend                         ; if iter < stopper goto decend
     l_decloop:
         mov rax, [rsi]                      ; RAX <- rest[iter]
         mul rbx                             ; RAX * RBX(=5^25) -> RDX:RAX
@@ -266,10 +265,10 @@ _TEXT   SEGMENT
         mov rcx, rdx                        ; RCX (=mul carry) <- RDX
         mov [rsi], rax                      ; rest[iter] <- RAX
         sub rsi, 8h                         ; -- RSI iter
-        cmp rsi, ?res_beg@@3PEA_KEA         ; cmp iter, res_beg
+        cmp rsi, r8                         ; cmp iter, stopper
         jae l_decloop                       ; if iter >= res_beg repeat decloop
     l_decend:
-        mov [rsi], rcx                      ; rest[iter(=0)] <- RCX (=last mul carry)
+        mov [rsi], rcx                      ; rest[iter(=reg_beg-1)] <- RCX (=last mul carry)
 
     ret 0
 

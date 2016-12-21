@@ -22,13 +22,9 @@ ulonlong *base, *rest;
 ulonlong *bas_beg, *bas_end;
 ulonlong *res_beg, *res_mid, *res_end;
 
-// hi+lo decadic parts
-ulonlong hi_dec, lo_dec;
-
 // adapt statistics
 const ulonlong MAX_ADAPT = 2;
 ulonlong adapt_stat[MAX_ADAPT+1];
-ulonlong adapt;
 
 // lead & next statistics
 ulonlong lead_stat, next_stat;
@@ -40,7 +36,6 @@ int sqrt_check_next();
 int sqrt_subtr_next();
 int sqrt_shift_rest();
 int sqrt_bin_to_dec();
-int sqrt_split_deci();
 
 int main(int argc, char* argv[])
 {
@@ -110,8 +105,6 @@ int main(int argc, char* argv[])
 
         // check next QWORD and try to adapt it
         sqrt_check_next();
-        // update adapt sttatistics
-        ++ adapt_stat[adapt];
 
         // set next QWORD to the end of partial result
         *res_end = next;
@@ -152,30 +145,11 @@ int main(int argc, char* argv[])
 
     // 25 figures by 25 figures
     for(i = 1; i < dec_len; i += 2) {
-        // ignore trailing zeros in result
-        while(res_beg <= res_end) {
-            if(*res_end != 0) break;
-            --res_end;
-        }
-        // multiplication by 5^25
+        // multiplication by 5^25 and shift by 2^25
         sqrt_bin_to_dec();
-        // multiplication by 2^25
-        shift += 25;
-        if(shift >= 64) {
-            hi_dec = *(res_beg-1);
-            lo_dec = *(res_beg++);
-            shift -= 64;
-        } else {
-            hi_dec = 0;
-            lo_dec = *(res_beg-1);
-        }
-        // extension of result field base
-        bas_end += 2;
-        // extaction result and splitting into two QWORDs of base field by 13 + 12 decadic figures
-        sqrt_split_deci();
-        // restriction of the rest fields
-        // low significant QWORD (= 64 bit) can be forgotten
-        // 9 times during each 10 multiplications by 5^25
+        // restrict the rest fields by clearing
+        // low significant QWORD (= 64 bit)
+        // 9 times during each 10 proceedings
         // because 9/10 is slightly less than 25*ln(5)/64*ln(2)
         if(i % 20 > 1) rest[j--] = 0;
     }
@@ -196,8 +170,7 @@ int main(int argc, char* argv[])
     printf("%llu.", base[0]);
     for(i = 1; i < dec_len; i += 2) {
         if(i % 8 == 1) printf("\n");
-        printf("%013llu", base[i]);
-        printf("%012llu", base[i+1]);
+        printf("%013llu%012llu", base[i], base[i+1]);
     }
     printf("\n");
 

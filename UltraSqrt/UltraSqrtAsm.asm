@@ -10,7 +10,6 @@ PUBLIC  ?sqrt_check_next@@YAHXZ             ; sqrt_check_next
 PUBLIC  ?sqrt_subtr_next@@YAHXZ             ; sqrt_subtr_next
 PUBLIC  ?sqrt_shift_rest@@YAHXZ             ; sqrt_subtr_next
 PUBLIC  ?sqrt_bin_to_dec@@YAHXZ             ; sqrt_bin_to_dec
-PUBLIC  ?sqrt_split_deci@@YAHXZ             ; sqrt_split_deci
 
 ;;***************************************************
 ;; Extern data from 'UltraSqrt.cpp'
@@ -26,9 +25,7 @@ EXTRN    ?res_end@@3PEA_KEA :QWORD          ; res_end
 EXTRN    ?lead@@3_KA        :QWORD          ; lead
 EXTRN    ?next@@3_KA        :QWORD          ; next
 EXTRN    ?shift@@3_KA       :QWORD          ; shift
-EXTRN    ?hi_dec@@3_KA      :QWORD          ; hi_dec
-EXTRN    ?lo_dec@@3_KA      :QWORD          ; lo_dec
-EXTRN    ?adapt@@3_KA       :QWORD          ; adapt
+EXTRN    ?adapt_stat@@3PA_KA:QWORD          ; adapt_stat
 
 _TEXT   SEGMENT
 
@@ -126,11 +123,11 @@ _TEXT   SEGMENT
 ?sqrt_check_next@@YAHXZ PROC                ; sqrt_check_next (==> next, adjust)
 
     ;; reset adapt counter and read "next"
-        mov ?adapt@@3_KA, 0                 ; adapt <- 0 (reset)
+        xor r9, r9                          ; R9 adjust <- 0
         mov rbx, ?next@@3_KA                ; RBX <- next
     ;; try next adaptation
     l_adjustnext:
-        inc ?adapt@@3_KA                    ; ++ adapt
+        inc r9                              ; ++ R9 adjust
         inc rbx                             ; ++ RBX (=next)
     ;; check overload
         jz l_adjustback                     ; if ZF goto adjustback
@@ -162,11 +159,13 @@ _TEXT   SEGMENT
         jmp l_postadjust                    ; otherwise goto postadjust
     ;; decrease (back) next DWORD
     l_adjustback:
-        dec ?adapt@@3_KA                    ; -- adjust
+        dec r9                              ; -- R9 adjust
         dec rbx                             ; -- RBX
     ;; update next
     l_postadjust:
         mov ?next@@3_KA, rbx                ; next <- RBX
+        lea r8, offset ?adapt_stat@@3PA_KA  ; R8 <- adapt_stat (ptr)
+        inc qword ptr [r8+8*r9]             ; ++ adapt_stat[R9]
 
     ret 0
 
@@ -254,9 +253,17 @@ _TEXT   SEGMENT
         xor rcx, rcx                        ; RCX (=mul carry) <- 0
         mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- res_end
         mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
-    ;; loop per actual length of the rest
+    ;; perform init zero check
+    l_zerocheck:
         cmp rsi, r8                         ; cmp RSI iter, res_beg
-        jb l_decend                         ; if iter < stopper goto decend
+        jb l_dechead                        ; if iter < stopper goto dechead
+        mov rax, [rsi]                      ; RAX <- rest[res_end]
+        cmp rax, 0h                         ; cmp RAX, 0h
+        jnz l_decloop                       ; if rest[res_end] != 0 goto decloop
+        sub rsi, 8h                         ; -- RSI iter (=rest_end)
+        mov ?res_end@@3PEA_KEA, rsi         ; res_end <- RSI iter
+        jmp l_zerocheck                     ; repeat zerocheck
+    ;; loop per actual length of the rest
     l_decloop:
         mov rax, [rsi]                      ; RAX <- rest[iter]
         mul rbx                             ; RAX * RBX(=5^25) -> RDX:RAX
@@ -267,43 +274,41 @@ _TEXT   SEGMENT
         sub rsi, 8h                         ; -- RSI iter
         cmp rsi, r8                         ; cmp iter, stopper
         jae l_decloop                       ; if iter >= res_beg repeat decloop
-    l_decend:
-        mov [rsi], rcx                      ; rest[iter(=reg_beg-1)] <- RCX (=last mul carry)
+    ;; head processing - shift by 2^25
+    l_dechead:
+        xor rdx, rdx                        ; RDX = 0
+        mov rax, rcx                        ; RAX <- RCX (=last mul carry)
+        mov rcx, ?shift@@3_KA               ; RCX <- shift
+        add rcx, 25                         ; RCX += 25
+        cmp rcx, 64                         ; cmp RCX, 64
+        jb l_simple2mul                     ; if RCX < 64 goto simple2mul
+    ;; shift of res_beg by 1 QWORD
+        sub rcx, 64                         ; RCX -= 64
+        xchg rdx, rax                       ; RDX <-> RAX
+        xchg rax, [r8]                      ; RAX <-> rest[rest_beg]
+        add r8, 8h                          ; ++ R8 stopper
+        mov ?res_beg@@3PEA_KEA, r8          ; res_beg <- R8 stopper
+    ;; simple shift (without res_beg change)
+    l_simple2mul:
+        mov ?shift@@3_KA, rcx               ; shift <- RCX
+        mov rbx, [r8]                       ; RBX <- rest[res_beg]
+        shld rdx, rax, cl                   ; RDX:RAX << CL
+        shld rax, rbx, cl                   ;   lower bits from RBX
+        shl rbx, cl                         ; RBX cleaning of top bits
+        shr rbx, cl                         ;   being shifted to RAX
+        mov [r8], rbx                       ; rest[res_beg] <- RBX
+    ;; split of "whole" part into 13 and 12 decimal digits and store at the end of base
+        mov rbx, 1000000000000              ; RBX <- 1,000,000,000,000
+        div rbx                             ; RDX:RAX / RBX(=1e12) -> RAX, rest RDX
+        mov rdi, ?bas_end@@3PEA_KEA         ; RDI base_end <- bas_end
+        mov [rdi+8h], rax                   ; base[base_end+1] <- higher dec digits
+        mov [rdi+10h], rdx                  ; base[base_end+2] <- lower dec digits
+        add rdi, 10h                        ; RDI base_end += 2
+        mov ?bas_end@@3PEA_KEA, rdi         ; base_end <- RDI
 
     ret 0
 
 ?sqrt_bin_to_dec@@YAHXZ ENDP                ; sqrt_bin_to_dec
-
-;;***************************************************
-;; PROC sqrt_split_deci
-;;
-;; - splits 25 digits binary stored in two QWORDs
-;;   into two decimal groups
-;; - 13 digits in HI QWORD 
-;; - 12 digits in LO QWORD
-;; - appends these QWORDs to the end of 'base'
-;;***************************************************
-?sqrt_split_deci@@YAHXZ PROC                ; sqrt_split_deci
-
-    mov rcx, ?shift@@3_KA                   ; RCX (resp. CL) <- shift
-    mov rax, ?lo_dec@@3_KA                  ; RDX:RAX <- hi_dec:lo_dec
-    mov rdx, ?hi_dec@@3_KA                  ;
-    mov rsi, ?res_beg@@3PEA_KEA             ; RSI iter <- res_beg
-    mov rdi, ?bas_end@@3PEA_KEA             ; RDI iter <- bas_end
-    mov rbx, [rsi]                          ; RBX <- rest[iter(=res_beg)]
-    shld rdx, rax, cl                       ; RDX:RAX << CL
-    shld rax, rbx, cl                       ;   (taking lower bits from RBX)
-    shl rbx, cl                             ; RBX << CL
-    shr rbx, cl                             ; RBX >> CL (cleaning of top bits)
-    mov [rsi], rbx                          ; rest[iter(=res_beg)] <- RBX
-    mov rbx, 1000000000000                  ; RBX <- 1,000,000,000,000
-    div rbx                                 ; RDX:RAX / RBX(=1e12) -> RAX, rest RDX
-    mov [rdi-8h], rax                       ; base[iter-1(=base_end-1)] <- higher dec digits
-    mov [rdi], rdx                          ; base[iter(=base_end)] <- lower dec digits
-
-    ret 0
-
-?sqrt_split_deci@@YAHXZ ENDP                ; sqrt_split_deci
 
 _TEXT   ENDS
 

@@ -62,8 +62,8 @@ int main(int argc, char* argv[])
     // How many QWORDs of 64 bit each is needed to carry binary data
     // corresponding to required groups of DECDIG decimal digits
     // QWORDS/DECGROUPS must be slightly more than DECDIG*ln(10)/64*ln(2)
-    const ulonlong DECDIG = 25;
-    const ulonlong QWORDS = 164403, DECGROUPS = 126695;
+    const ulonlong DECDIG = 27;
+    const ulonlong QWORDS = 125489, DECGROUPS = 89543;
     dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
     len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
     dec_len *= 2; // DECDIG digits is stored in two QWORDs
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
     shift = 0;
 
     // translation of binary result into decimal output
-    const ulonlong TAILTRIM = 2*10;
+    const ulonlong TAILTRIM = 2*48;
     for(i = 1; i < dec_len; i += 2) {
         // multiplication and shift
         sqrt_bin_to_dec();
@@ -174,12 +174,23 @@ int main(int argc, char* argv[])
     printf("total_calc time: %5u.%02u\n\n",time/1000,time%1000/10);
 
     // print the result
-    printf("%llu.", base[0]);
+    printf("%llu.\n", base[0]);
+    const ulonlong OUTPUT_SIZE = 100;
+    char line[OUTPUT_SIZE + DECDIG];
+    ulonlong pos = 0;
     for(i = 1; i < dec_len; i += 2) {
-        if(i % 8 == 1) printf("\n");
-        printf("%013llu%012llu", base[i], base[i+1]);
+        sprintf_s(line + pos, DECDIG + 1, "%015llu%012llu", base[i], base[i+1]);
+        pos += DECDIG;
+        if (pos >= OUTPUT_SIZE) {
+            pos -= OUTPUT_SIZE;
+            char oc = line[OUTPUT_SIZE]; line[OUTPUT_SIZE] = 0;
+            printf("%s\n", line);
+            line[0] = oc; for (j = 1; j <= pos; ++j) line[j] = line[OUTPUT_SIZE+j];
+        }
     }
-    printf("\n");
+    if (pos > 0) {
+        printf("%s\n", line);
+    }
 
     // release memory for the base and the result
     free(base);

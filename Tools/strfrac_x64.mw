@@ -131,14 +131,15 @@
 </Group>
 <Group labelreference="L2" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal">strfrac := proc(x)
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal">strfrac := proc(x, e_sgn, e_max)
 local y,p0,q0,p1,q1,p,q,k,l;
 Digits := 30;
 y := evalf(x);
 p1 := 1; q1 := 0;
 k := trunc(y);
 p := k; q := 1; l :=y;
-while abs(y-p/q) &gt; 1e-18 do
+print(p/q,p/q-y);
+while signum(p/q-y)*e_sgn &lt; 0 or abs(p/q-y) &gt; abs(e_max) do
   l := 1/(l-k); k := trunc(l);
   p0 := p1; p1 := p;
   q0 := q1; q1 := q;
@@ -152,82 +153,60 @@ end:
 </Group>
 <Group labelreference="L3" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Number of QWORDs (64 bit) needed to carry group of 25 decimal digits
-strfrac(25*ln(10)/64/ln(2));
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Number of QWORDs (64 bit) needed to carry group of 27 decimal digits
+strfrac(27*ln(10)/64/ln(2), 1, 1e-10);
 </Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">4/3, 0.3570517126795741619648980619e-1
-9/7, -0.1191387635109020285112924143e-1
-13/10, 0.237183793462408286315647286e-2
-48/37, -0.33086476807861983954622984e-3
-61/47, 0.24417836015599775677349414e-3
-109/84, -0.911444632829808922447952e-5</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">1587/1223, 0.61961900674843960782200e-6
-1696/1307, -0.598274393549950611321e-8
-164403/126695, 0.5625477073560605651e-10
-166099/128002, -0.540810413392169779e-11
-1825393/1406715, 0.14552821633746546e-12
-5642278/4348147, -0.1796120757066677e-13
-13109949/10103009, 0.480260714561510e-14
-18752227/14451156, -0.204670045767676e-14
-31862176/24554165, 0.77150233438830e-15
-50614403/39005321, -0.27261900966545e-15
-82476579/63559486, 0.13074371988711e-15
-133090982/102564807, -0.2265483080322e-16
-481749525/371253907, 0.360733870176e-17
-614840507/473818714, -0.207748181523e-17
-1096590032/845072621, 0.41995068357e-18</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">1, -.40143841503060599050779100931
+3/2, 0.9856158496939400949220899069e-1
+7/5, -0.143841503060599050779100931e-2
+192/137, 0.2143898399254963819439215e-4
+391/279, -0.472327433358907409925304e-5
+974/695, 0.43389025731884472697630e-6
+4287/3059, -0.3647552262993243958728e-7
+9548/6813, 0.1150689584421993539609e-7
+13835/9872, -0.336123808126954141450e-8
+37218/26557, 0.45307062959237090657e-9
+88271/62986, -0.14475834182395650640e-9
+125489/89543, 0.3254802488146331543e-10</Text-field>
 </Output>
 </Group>
 <Group labelreference="L7" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># ==&gt; It is enough to use
-#  164,403 QWOORDs to carry 126,695 (x 25) decimal digits
-printf<Font encoding="UTF-8">(&quot;%10d = 0x%08X\134n&quot;, 164403</Font>, 164403);
-printf<Font encoding="UTF-8">(&quot;%10d = 0x%08X\134n&quot;, 126695</Font>, 126695);
+#  125,489 QWOORDs to carry 89,543 (x 27) decimal digits
+printf<Font encoding="UTF-8">(&quot;%10d = 0x%08X\134n&quot;, </Font>125489, 125489);
+printf<Font encoding="UTF-8">(&quot;%10d = 0x%08X\134n&quot;, </Font>89543,  89543);
 </Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">    164403 = 0x00028233
-    126695 = 0x0001EEE7</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">    125489 = 0x0001EA31</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">     89543 = 0x00015DC7</Text-field>
 </Output>
 </Group>
 <Group labelreference="L4" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># How much will grow binary data if multiplied by 5^25
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># How much will grow binary data if multiplied by 5^27
 # - result calculated in QWORDs (64 bit)
-strfrac(25*ln(5)/64/ln(2));
+strfrac(27*ln(5)/64/ln(2), -1, 0.1);
 </Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">1, 0.92996837934624082863156472852e-1
-9/10, -0.7003162065375917136843527148e-2
-10/11, 0.2087747025533173772247381943e-2
-39/43, -0.26417879329405508936550404e-4
-790/871, 0.282251501235561204693288e-6
-3199/3527, -0.43267530722920795894599e-7
-3989/4398, 0.21199744592185575754344e-7
-7188/7925, -0.7491243425023278858378e-8
-11177/12323, 0.2748386965278152821144e-8
-18365/20248, -0.1259370385726333847180e-8
-29542/32571, 0.256935341344627720281e-9
-106991/117961, -0.3338464080324847245e-11
-2276353/2509752, 0.39311140691464357e-13
-6936050/7647217, -0.12792224865744904e-13
-9212403/10156969, 0.82337015258874e-16
-1075574798/1185855621, -0.687061821387e-18</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">0, -.979563415030605990507791009320
+1, 0.20436584969394009492208990680e-1
+47/48, -0.396748363939323841124342653e-3</Text-field>
 </Output>
 </Group>
 <Group labelreference="L5" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># ==&gt; Binary data will grow more than 
-#  9 QWORDs in 10 multiplications by 5^25
-printf<Font encoding="UTF-8">(&quot; 5^25 = %18d = 0x%016X\134n&quot;, </Font>5^25, 5^25);
+#  47 QWORDs in 48 multiplications by 5^27
+printf<Font encoding="UTF-8">(&quot; 5^27 = %19d = 0x%08X%08X\134n&quot;, </Font>5^27, iquo(5^27,2^32),irem(5^27,2^32));
 </Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output"> 5^25 = 298023223876953125 = 0x0422CA8B0A00A425</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output"> 5^27 = 7450580596923828125 = 0x6765C793FA10079D</Text-field>
 </Output>
 </Group>
 <Group labelreference="L8" drawlabel="true">

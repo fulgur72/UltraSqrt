@@ -246,12 +246,12 @@ _TEXT   SEGMENT
 ;;
 ;; - converts binary result from 'rest'
 ;;   to decimal result in 'base' multiplying
-;;   'rest' by 5^25 to get next 25 digits
-;;   and additionally shifting the head by 25 bits
+;;   'rest' by 5^27 to get next 27 digits
+;;   and additionally shifting the head by 27 bits
 ;;***************************************************
 ?sqrt_bin_to_dec@@YAHXZ PROC                ; sqrt_bin_to_dec
 
-        mov rbx, 298023223876953125         ; RBX <- 5^25
+        mov rbx, 7450580596923828125        ; RBX <- 5^27
         xor rcx, rcx                        ; RCX (=mul carry) <- 0
         mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- res_end
         mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
@@ -276,12 +276,12 @@ _TEXT   SEGMENT
         sub rsi, 8h                         ; -- RSI iter
         cmp rsi, r8                         ; cmp iter, stopper
         jae l_decloop                       ; if iter >= res_beg repeat decloop
-    ;; head processing - shift by 2^25
+    ;; head processing - shift by 2^27
     l_dechead:
         xor rdx, rdx                        ; RDX = 0
         mov rax, rcx                        ; RAX <- RCX (=last mul carry)
         mov rcx, ?shift@@3_KA               ; RCX <- shift
-        add rcx, 25                         ; RCX += 25
+        add rcx, 27                         ; RCX += 27
         cmp rcx, 64                         ; cmp RCX, 64
         jb l_simple2mul                     ; if RCX < 64 goto simple2mul
     ;; shift of res_beg by 1 QWORD

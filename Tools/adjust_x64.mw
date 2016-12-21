@@ -135,16 +135,25 @@ adjust_prob := proc(sq::integer, cycl::integer)
 </Text-field>
 </Input>
 </Group>
+<Group labelreference="L19" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Cycles needed for computation of: 2,000,025
+cycles := 103812;</Text-field>
+</Input>
+<Output>
+<Text-field style="Line Printed Output" layout="Line Printed Output">cycles := 103812</Text-field>
+</Output>
+</Group>
 <Group labelreference="L3" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2 )
-adjust_prob(2, 103811);</Text-field>
+adjust_prob(2, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(2)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">binar_lead: 0xB504F333F9DE6484
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(2)
+binar_lead: 0xB504F333F9DE6484
 binar_next: 0x597D89B3754ABE9F
-Adjust 0x probability:  54.007781 % (~    56066 cycles)
+Adjust 0x probability:  54.007781 % (~    56067 cycles)
 Adjust 1x probability:  45.992219 % (~    47745 cycles)
 Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
@@ -152,27 +161,27 @@ Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 <Group labelreference="L7" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 3 )
-adjust_prob(3, 103811);</Text-field>
+adjust_prob(3, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(3)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">binar_lead: 0xDDB3D742C265539D
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(3)
+binar_lead: 0xDDB3D742C265539D
 binar_next: 0x92BA16B83C5C1DC4
 Adjust 0x probability:  75.355919 % (~    78228 cycles)
-Adjust 1x probability:  24.644081 % (~    25583 cycles)
+Adjust 1x probability:  24.644081 % (~    25584 cycles)
 Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L4" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 5 )
-adjust_prob(5, 103811);</Text-field>
+adjust_prob(5, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(5)
 binar_lead: 0x8F1BBCDCBFA53E0A
 binar_next: 0xF9CE60302E76E41A
-Adjust 0x probability:  97.835960 % (~   101564 cycles)
+Adjust 0x probability:  97.835960 % (~   101565 cycles)
 Adjust 1x probability:   2.164040 % (~     2247 cycles)
 Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
@@ -180,27 +189,27 @@ Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 <Group labelreference="L9" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 17 )
-adjust_prob(17, 103811);</Text-field>
+adjust_prob(17, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(17)
 binar_lead: 0x83F07B357F6837AD
 binar_next: 0x64788CA985442EB0
 Adjust 0x probability:  42.416299 % (~    44033 cycles)
-Adjust 1x probability:  56.227795 % (~    58370 cycles)
+Adjust 1x probability:  56.227795 % (~    58371 cycles)
 Adjust 2x probability:   1.355906 % (~     1408 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L6" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 19 )
-adjust_prob(19, 103811);</Text-field>
+adjust_prob(19, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(19)
 binar_lead: 0x8B7C19A3226FC42F
 binar_next: 0x30CFEBC76E44424C
-Adjust 0x probability:  33.661432 % (~    34944 cycles)
+Adjust 0x probability:  33.661432 % (~    34945 cycles)
 Adjust 1x probability:  58.408163 % (~    60634 cycles)
 Adjust 2x probability:   7.930406 % (~     8233 cycles)</Text-field>
 </Output>
@@ -208,27 +217,27 @@ Adjust 2x probability:   7.930406 % (~     8233 cycles)</Text-field>
 <Group labelreference="L8" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 23 )
-adjust_prob(23, 103811);</Text-field>
+adjust_prob(23, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(23)
 binar_lead: 0x997773ABB820B3DB
-binar_next: 0x1CEE61D5FE4BC494
-Adjust 0x probability:  33.792973 % (~    35081 cycles)
-Adjust 1x probability:  58.434177 % (~    60661 cycles)
+binar_next: 0x1CEE61D5FE4BC494</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">Adjust 0x probability:  33.792973 % (~    35081 cycles)
+Adjust 1x probability:  58.434177 % (~    60662 cycles)
 Adjust 2x probability:   7.772851 % (~     8069 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L10" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 1 ) - maximal value
-adjust_prob(2^32-1, 103811);</Text-field>
+adjust_prob(2^32-1, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967295)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">binar_lead: 0xFFFFFFFF7FFFFFFF
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967295)
+binar_lead: 0xFFFFFFFF7FFFFFFF
 binar_next: 0xDFFFFFFFEFFFFFFF
-Adjust 0x probability:  93.750000 % (~    97323 cycles)
+Adjust 0x probability:  93.750000 % (~    97324 cycles)
 Adjust 1x probability:   6.250000 % (~     6488 cycles)
 Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
@@ -236,13 +245,13 @@ Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 <Group labelreference="L14" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 2 ) - maximal value - 1
-adjust_prob(2^32-2, 103811);</Text-field>
+adjust_prob(2^32-2, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967294)
 binar_lead: 0xFFFFFFFEFFFFFFFF
 binar_next: 0x7FFFFFFF7FFFFFFF
-Adjust 0x probability:  75.000000 % (~    77858 cycles)
+Adjust 0x probability:  75.000000 % (~    77859 cycles)
 Adjust 1x probability:  25.000000 % (~    25953 cycles)
 Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
@@ -250,27 +259,27 @@ Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 <Group labelreference="L17" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 + 1 ) - max adjust
-adjust_prob(2^30+1, 103811);</Text-field>
+adjust_prob(2^30+1, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(1073741825)
-binar_lead: 0x80000000FFFFFFFF</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">binar_next: 0x00000001FFFFFFFB
+binar_lead: 0x80000000FFFFFFFF
+binar_next: 0x00000001FFFFFFFB
 Adjust 0x probability:  25.000000 % (~    25953 cycles)
-Adjust 1x probability:  50.000000 % (~    51905 cycles)
+Adjust 1x probability:  50.000000 % (~    51906 cycles)
 Adjust 2x probability:  25.000000 % (~    25953 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L15" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 - 1 ) - min adjust
-adjust_prob(2^30-1, 103811);</Text-field>
+adjust_prob(2^30-1, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(1073741823)
 binar_lead: 0xFFFFFFFDFFFFFFFD
 binar_next: 0xFFFFFFFBFFFFFFF5
-Adjust 0x probability: 100.000000 % (~   103811 cycles)
+Adjust 0x probability: 100.000000 % (~   103812 cycles)
 Adjust 1x probability:   0.000000 % (~        0 cycles)
 Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>

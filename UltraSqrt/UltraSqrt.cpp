@@ -120,34 +120,28 @@ int main(int argc, char* argv[])
         }
     }
 
-    // remember lead and next
+    // remember lead and next for statistics
     lead_stat = rest[0];
     next_stat = rest[1];
 
-    // update result
-    res_beg = rest;
-    res_end = rest + (len+1);
-
     // move the result right by half of the bits
     // which the base was shifted left in the beginning
+    res_beg = rest;
+    res_end = rest + (len + 1);
     sqrt_shift_rest();
 
     // binar time
     DWORD binar_time = GetTickCount();
 
-    // transcode into decadic
+    // translation of binary data into decadic - initial "whole" part
     base[0] = rest[0];
     rest[0] = 0;
 
-    // reset iterators
-    res_beg = rest+(1);
-    res_end = rest+(j = len+1);
-
-    // reset shift
-    shift = 0;
-
-    // translation of binary result into decimal output
+    // translation of binary data into decadic - further "fraction" digits
     const ulonlong TAILTRIM = 2*48;
+    res_beg = rest + (1);
+    res_end = rest + (j = len + 1);
+    shift = 0;
     for(i = 1; i < dec_len; i += 2) {
         // multiplication and shift
         sqrt_bin_to_dec();

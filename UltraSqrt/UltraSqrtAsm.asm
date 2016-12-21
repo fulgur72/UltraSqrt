@@ -304,7 +304,7 @@ _TEXT   SEGMENT
         div rbx                             ; RDX:RAX / RBX(=1e12) -> RAX, rest RDX
         mov ?hi_dec@@3_KA, rax              ; hi_dec <- RAX
         mov ?lo_dec@@3_KA, rdx              ; lo_dec <- RDX
-        
+
     ret 0
 
 ?sqrt_bin_to_dec@@YAHXZ ENDP                ; sqrt_bin_to_dec

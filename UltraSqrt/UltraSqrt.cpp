@@ -22,6 +22,9 @@ ulonlong *base, *rest;
 ulonlong *bas_beg, *bas_end;
 ulonlong *res_beg, *res_mid, *res_end;
 
+// decimal output
+ulonlong hi_dec, lo_dec;
+
 // adapt statistics
 const ulonlong MAX_ADAPT = 2;
 ulonlong adapt_stat[MAX_ADAPT+1];
@@ -40,7 +43,7 @@ int sqrt_bin_to_dec();
 int main(int argc, char* argv[])
 {
     // scan and checks parameters
-    const ulong MAX_LEN = 10000000uL;
+    const ulong MAX_LEN = 10000000;
     ulong arg_num, arg_len;
     bool isOk = true;
     if(isOk) isOk = (argc == 3);
@@ -56,13 +59,15 @@ int main(int argc, char* argv[])
     // print input 'arg_num' value
     printf("sqrt(%lu)\n", arg_num);
 
-    // 164,403 QWORDs (64 bit) is needed to carry binary data
-    // corresponding to 126,695 groups of 25 decimal digits each
-    // because 164403/126695 is (only) slightly more than 25*ln(10)/64*ln(2)
-    dec_len = ((ulonlong)arg_len + (25-1)) / 25;
-    len = (164403 * dec_len + (164403-1)) / 126695;
-    dec_len *= 2; // 25 digits in two QWORDs
-    printf("decimal figures: %8llu\n", 25 * dec_len / 2);
+    // How many QWORDs of 64 bit each is needed to carry binary data
+    // corresponding to required groups of DECDIG decimal digits
+    // QWORDS/DECGROUPS must be slightly more than DECDIG*ln(10)/64*ln(2)
+    const ulonlong DECDIG = 25;
+    const ulonlong QWORDS = 164403, DECGROUPS = 126695;
+    dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
+    len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
+    dec_len *= 2; // DECDIG digits is stored in two QWORDs
+    printf("decimal figures: %8llu\n", DECDIG * dec_len / 2);
     printf("binary bytes:    %8llu\n", 8 * len);
 
     // iterators
@@ -135,23 +140,25 @@ int main(int argc, char* argv[])
     rest[0] = 0;
 
     // reset iterators
-    bas_beg = base;
-    bas_end = base;
     res_beg = rest+(1);
     res_end = rest+(j = len+1);
 
     // reset shift
     shift = 0;
 
-    // 25 figures by 25 figures
+    // translation of binary result into decimal output
+    const ulonlong TAILTRIM = 2*10;
     for(i = 1; i < dec_len; i += 2) {
-        // multiplication by 5^25 and shift by 2^25
+        // multiplication and shift
         sqrt_bin_to_dec();
-        // restrict the rest fields by clearing
-        // low significant QWORD (= 64 bit)
-        // 9 times during each 10 proceedings
-        // because 9/10 is slightly less than 25*ln(5)/64*ln(2)
-        if(i % 20 > 1) rest[j--] = 0;
+        // storing of the decimal output
+        base[i] = hi_dec;
+        base[i + 1] = lo_dec;
+        // restrict the "tail" of the rest fields
+        // by clearing low significant QWORD (= 64 bit)
+        // N times during each N proceedings
+        // (N-1)/N must be slightly less than DECDIG*ln(5)/64*ln(2)
+        if(i % TAILTRIM > 1) rest[j--] = 0;
     }
 
     // b2dec time

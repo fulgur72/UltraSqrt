@@ -25,6 +25,8 @@ EXTRN    ?res_end@@3PEA_KEA :QWORD          ; res_end
 EXTRN    ?lead@@3_KA        :QWORD          ; lead
 EXTRN    ?next@@3_KA        :QWORD          ; next
 EXTRN    ?shift@@3_KA       :QWORD          ; shift
+EXTRN    ?hi_dec@@3_KA      :QWORD          ; hi_dec
+EXTRN    ?lo_dec@@3_KA      :QWORD          ; lo_dec
 EXTRN    ?adapt_stat@@3PA_KA:QWORD          ; adapt_stat
 
 _TEXT   SEGMENT
@@ -245,7 +247,7 @@ _TEXT   SEGMENT
 ;; - converts binary result from 'rest'
 ;;   to decimal result in 'base' multiplying
 ;;   'rest' by 5^25 to get next 25 digits
-;;   (after result is additionally shifted by 2^25)
+;;   and additionally shifting the head by 25 bits
 ;;***************************************************
 ?sqrt_bin_to_dec@@YAHXZ PROC                ; sqrt_bin_to_dec
 
@@ -297,15 +299,12 @@ _TEXT   SEGMENT
         shl rbx, cl                         ; RBX cleaning of top bits
         shr rbx, cl                         ;   being shifted to RAX
         mov [r8], rbx                       ; rest[res_beg] <- RBX
-    ;; split of "whole" part into 13 and 12 decimal digits and store at the end of base
+    ;; split of "whole" part into 13 and 12 decimal digits
         mov rbx, 1000000000000              ; RBX <- 1,000,000,000,000
         div rbx                             ; RDX:RAX / RBX(=1e12) -> RAX, rest RDX
-        mov rdi, ?bas_end@@3PEA_KEA         ; RDI base_end <- bas_end
-        mov [rdi+8h], rax                   ; base[base_end+1] <- higher dec digits
-        mov [rdi+10h], rdx                  ; base[base_end+2] <- lower dec digits
-        add rdi, 10h                        ; RDI base_end += 2
-        mov ?bas_end@@3PEA_KEA, rdi         ; base_end <- RDI
-
+        mov ?hi_dec@@3_KA, rax              ; hi_dec <- RAX
+        mov ?lo_dec@@3_KA, rdx              ; lo_dec <- RDX
+        
     ret 0
 
 ?sqrt_bin_to_dec@@YAHXZ ENDP                ; sqrt_bin_to_dec

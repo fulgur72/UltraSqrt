@@ -33,7 +33,7 @@ ulonlong adapt_stat[MAX_ADAPT+1];
 ulonlong lead_stat, next_stat;
 
 // lead & next statistics
-ulonlong rest_stat;
+ulonlong b2dec_str, b2dec_end;
 
 // assembler functions
 int sqrt_init_qword();
@@ -144,6 +144,7 @@ int main(int argc, char* argv[])
     const ulonlong TAILTRIM = 2*48;
     res_beg = rest + (1);
     res_end = rest + (j = len + 1);
+    b2dec_str = res_end - res_beg + 1;
     shift = 0;
     for(i = 1; i < dec_len; i += 2) {
         // multiplication and shift
@@ -157,9 +158,7 @@ int main(int argc, char* argv[])
         // (N-1)/N must be slightly less than DECDIG*ln(5)/64*ln(2)
         if(i % TAILTRIM > 1) rest[j--] = 0;
     }
-
-    // remember how many QWORDs remained in rest after bin_to_dec
-    rest_stat = (res_end > res_beg ? res_end - res_beg : 0);
+    b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
 
     // b2dec time
     DWORD b2dec_time = GetTickCount();
@@ -201,10 +200,12 @@ int main(int argc, char* argv[])
     printf("* binary lead: 0x%016llX\n", lead_stat);
     printf("* binary next: 0x%016llX\n", next_stat);
     for (i = 0; i <= MAX_ADAPT; ++i) {
-        printf("* adapt   %llux :   %8llu\n", i, adapt_stat[i]);
+        printf("*  bin adapt %llux: %8llu\n", i, adapt_stat[i]);
     }
-    printf("* tot  cycles:   %8llu\n", len);
-    printf("* b2d remaind:   %8llu\n", rest_stat);
+    printf("* binary cycles: %8llu\n", len);
+    printf("* bi2dec start#: %8llu\n", b2dec_str);
+    printf("* bi2dec final#: %8llu\n", b2dec_end);
+    printf("* bi2dec cycles: %8llu\n", dec_len/2);
 
     return 0;
 }

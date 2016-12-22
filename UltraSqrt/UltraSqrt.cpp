@@ -32,6 +32,9 @@ ulonlong adapt_stat[MAX_ADAPT+1];
 // lead & next statistics
 ulonlong lead_stat, next_stat;
 
+// lead & next statistics
+ulonlong rest_stat;
+
 // assembler functions
 int sqrt_init_qword();
 int sqrt_next_guess();
@@ -155,6 +158,9 @@ int main(int argc, char* argv[])
         if(i % TAILTRIM > 1) rest[j--] = 0;
     }
 
+    // remember how many QWORDs remained in rest after bin_to_dec
+    rest_stat = (res_end > res_beg ? res_end - res_beg : 0);
+
     // b2dec time
     DWORD b2dec_time = GetTickCount();
 
@@ -192,12 +198,13 @@ int main(int argc, char* argv[])
 
     // print statistics
     printf("\n");
-    printf("* binar lead: 0x%016llX\n", lead_stat);
-    printf("* binar next: 0x%016llX\n", next_stat);
+    printf("* binary lead: 0x%016llX\n", lead_stat);
+    printf("* binary next: 0x%016llX\n", next_stat);
     for (i = 0; i <= MAX_ADAPT; ++i) {
-        printf("* adapt  %llux :   %8llu\n", i, adapt_stat[i]);
+        printf("* adapt   %llux :   %8llu\n", i, adapt_stat[i]);
     }
-    printf("* tot cycles:   %8llu\n", len);
+    printf("* tot  cycles:   %8llu\n", len);
+    printf("* b2d remaind:   %8llu\n", rest_stat);
 
     return 0;
 }

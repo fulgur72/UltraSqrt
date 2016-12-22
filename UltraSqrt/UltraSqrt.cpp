@@ -10,31 +10,20 @@ typedef unsigned long long ulonlong;
 
 // Data used in processing
 
-// decadic and binar sizes
-ulonlong dec_len, len;
-
 // aux variables
 ulonlong num, shift;
 ulonlong lead, next;
 
 // pointers and iterators
-ulonlong *base, *rest;
 ulonlong *bas_beg, *bas_end;
 ulonlong *res_beg, *res_mid, *res_end;
 
 // decimal output
-ulonlong *deci;
 ulonlong hi_dec, lo_dec;
 
 // adapt statistics
 const ulonlong MAX_ADAPT = 2;
 ulonlong adapt_stat[MAX_ADAPT+1];
-
-// lead & next statistics
-ulonlong lead_stat, next_stat;
-
-// lead & next statistics
-ulonlong b2dec_str, b2dec_end;
 
 // assembler functions
 int sqrt_init_qword();
@@ -68,8 +57,8 @@ int main(int argc, char* argv[])
     // QWORDS/DECGROUPS must be slightly more than DECDIG*ln(10)/64*ln(2)
     const ulonlong DECDIG = 27;
     const ulonlong QWORDS = 125489, DECGROUPS = 89543;
-    dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
-    len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
+    ulonlong dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
+    ulonlong len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
     dec_len *= 2; // DECDIG digits is stored in two QWORDs
     printf("decimal figures: %8llu\n", DECDIG * dec_len / 2);
     printf("binary bytes:    %8llu\n", 8 * len);
@@ -84,8 +73,8 @@ int main(int argc, char* argv[])
     DWORD start_time = GetTickCount();
 
     // memory allocation and initial cleaning
-    rest = (ulonlong*) malloc((len + 4) * sizeof(ulonlong));
-    base = rest + 2;
+    ulonlong* rest = (ulonlong*) malloc((len + 4) * sizeof(ulonlong));
+    ulonlong* base = rest + 2;
     for (i = 1; i <= len+1; ++i) base[i] = 0;
 
     // calculate first QWORD of partial result
@@ -126,8 +115,8 @@ int main(int argc, char* argv[])
     }
 
     // remember lead and next for statistics
-    lead_stat = rest[0];
-    next_stat = rest[1];
+    ulonlong lead_stat = rest[0];
+    ulonlong next_stat = rest[1];
 
     // move the result right by half of the bits
     // which the base was shifted left in the beginning
@@ -139,7 +128,7 @@ int main(int argc, char* argv[])
     DWORD binar_time = GetTickCount();
 
     // allocate memory for decadit output
-    deci = (ulonlong*) malloc((dec_len + 1) * sizeof(ulonlong));
+    ulonlong* deci = (ulonlong*) malloc((dec_len + 1) * sizeof(ulonlong));
 
     // translation of binary data into decadic - initial "whole" part
     deci[0] = rest[0];
@@ -148,7 +137,7 @@ int main(int argc, char* argv[])
     const ulonlong TAILTRIM = 2 * 48;
     res_beg = rest + (1);
     res_end = rest + (j = len + 1);
-    b2dec_str = res_end - res_beg + 1;
+    ulonlong b2dec_str = res_end - res_beg + 1;
     shift = 0;
     for(i = 1; i < dec_len; i += 2) {
         // multiplication and shift
@@ -162,7 +151,7 @@ int main(int argc, char* argv[])
         // (N-1)/N must be slightly less than DECDIG*ln(5)/64*ln(2)
         if(i % TAILTRIM > 1) rest[j--] = 0;
     }
-    b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
+    ulonlong b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
 
     // release memory with binary result
     free(rest);

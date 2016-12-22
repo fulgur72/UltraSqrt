@@ -15,8 +15,6 @@ PUBLIC  ?sqrt_bin_to_dec@@YAHXZ             ; sqrt_bin_to_dec
 ;; Extern data from 'UltraSqrt.cpp'
 ;;***************************************************
 EXTRN    ?num@@3_KA         :QWORD          ; num
-EXTRN    ?base@@3PEA_KEA    :QWORD          ; base
-EXTRN    ?rest@@3PEA_KEA    :QWORD          ; rest
 EXTRN    ?bas_beg@@3PEA_KEA :QWORD          ; bas_beg
 EXTRN    ?bas_end@@3PEA_KEA :QWORD          ; bas_end
 EXTRN    ?res_beg@@3PEA_KEA :QWORD          ; res_beg
@@ -86,10 +84,10 @@ _TEXT   SEGMENT
     ;; fill shift
         mov ?shift@@3_KA, rcx               ; shift <- RCX
     ;; initiation of the base = actual base and rest = first double-word of the result
-        mov rdi, ?base@@3PEA_KEA            ; move remainder of the rooted number to field "base"
-        mov [rdi], rax                      ; base[0] <- RAX
-        mov rsi, ?rest@@3PEA_KEA            ; move partial resuilt to field "rest"
-        mov [rsi], rdx                      ; rest[0] <- RDX
+        mov rdi, ?bas_beg@@3PEA_KEA         ; move remainder of the rooted number to field "base"
+        mov [rdi], rax                      ; base[base_beg] <- RAX
+        mov rsi, ?res_beg@@3PEA_KEA         ; move partial resuilt to field "rest"
+        mov [rsi], rdx                      ; rest[res_beg] <- RDX
 
     ret 0
 

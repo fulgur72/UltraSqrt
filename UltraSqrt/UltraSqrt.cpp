@@ -23,6 +23,7 @@ ulonlong *bas_beg, *bas_end;
 ulonlong *res_beg, *res_mid, *res_end;
 
 // decimal output
+ulonlong *deci;
 ulonlong hi_dec, lo_dec;
 
 // adapt statistics
@@ -76,21 +77,22 @@ int main(int argc, char* argv[])
     // iterators
     ulonlong i, j;
 
+    // reset adapt statistics
+    for (i = 0; i <= MAX_ADAPT; ++i) adapt_stat[i] = 0;
+
     // start time
     DWORD start_time = GetTickCount();
 
-    // memory allocation base = actual base for rooting; rest = partial result
-    base = (ulonlong*)malloc((dec_len + 2) * sizeof(ulonlong));
-    rest = (ulonlong*)malloc((len + 2) * sizeof(ulonlong));
-    // clean the rest of the lists
-    for (i = 0; i <= len + 1; ++i) base[i] = rest[i] = 0;
+    // memory allocation and initial cleaning
+    rest = (ulonlong*) malloc((len + 3) * sizeof(ulonlong));
+    base = rest + 2;
+    for (i = 1; i <= len; ++i) base[i] = 0;
 
     // calculate first QWORD of partial result
     num = (ulonlong) arg_num;
+    bas_beg = base;
+    res_beg = rest;
     sqrt_init_qword();
-
-    // reset adapt statistics
-    for(i = 0; i <= MAX_ADAPT; ++i) adapt_stat[i] = 0;
 
     // cycle for next QWORD of the result
     for(i = 1; i <= len; ++i) {
@@ -104,7 +106,7 @@ int main(int argc, char* argv[])
         res_end = rest + (i);
 
         // compute next DWORD
-        lead = rest[0] + 1;
+        lead = *res_beg + 1;
         if (lead == 0) {
             next = *bas_beg;
         } else {
@@ -136,9 +138,11 @@ int main(int argc, char* argv[])
     // binar time
     DWORD binar_time = GetTickCount();
 
+    // allocate memory for decadit output
+    deci = (ulonlong*) malloc((dec_len + 1) * sizeof(ulonlong));
+
     // translation of binary data into decadic - initial "whole" part
-    base[0] = rest[0];
-    rest[0] = 0;
+    deci[0] = rest[0];
 
     // translation of binary data into decadic - further "fraction" digits
     const ulonlong TAILTRIM = 2*48;
@@ -150,8 +154,8 @@ int main(int argc, char* argv[])
         // multiplication and shift
         sqrt_bin_to_dec();
         // storing of the decimal output
-        base[i] = hi_dec;
-        base[i + 1] = lo_dec;
+        deci[i] = hi_dec;
+        deci[i+1] = lo_dec;
         // restrict the "tail" of the rest fields
         // by clearing low significant QWORD (= 64 bit)
         // N times during each N proceedings
@@ -159,6 +163,9 @@ int main(int argc, char* argv[])
         if(i % TAILTRIM > 1) rest[j--] = 0;
     }
     b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
+
+    // release memory with binary result
+    free(rest);
 
     // b2dec time
     DWORD b2dec_time = GetTickCount();
@@ -173,12 +180,12 @@ int main(int argc, char* argv[])
     printf("total_calc time: %5u.%02u\n\n",time/1000,time%1000/10);
 
     // print the result
-    printf("%llu.\n", base[0]);
+    printf("%llu.\n", deci[0]);
     const ulonlong OUTPUT_SIZE = 100;
     char line[OUTPUT_SIZE + DECDIG];
     ulonlong pos = 0;
     for(i = 1; i < dec_len; i += 2) {
-        sprintf_s(line + pos, DECDIG + 1, "%015llu%012llu", base[i], base[i+1]);
+        sprintf_s(line + pos, DECDIG + 1, "%015llu%012llu", deci[i], deci[i+1]);
         pos += DECDIG;
         if (pos >= OUTPUT_SIZE) {
             pos -= OUTPUT_SIZE;
@@ -191,9 +198,8 @@ int main(int argc, char* argv[])
         printf("%s\n", line);
     }
 
-    // release memory for the base and the result
-    free(base);
-    free(rest);
+    // release memory for decadic output
+    free(deci);
 
     // print statistics
     printf("\n");

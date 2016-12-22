@@ -1,8 +1,12 @@
 #!/bin/bash
 
+num="02 03 05 17 19 23 4294967295 4294967294 1073741825 1073741823"
+
 # One by one processing 6e6
 ultrasqrt_1b1 () {
-  num="02 03 05 17 19 23 4294967295 4294967294 1073741825 1073741823"
+  local i; local l; local p;
+  local st; local en;
+  local file;
   echo "num = $num"
   l=6000000
   echo "l   = $l"
@@ -23,7 +27,10 @@ ultrasqrt_1b1 () {
 
 # Parallel processing 1e7
 ultrasqrt_par () {
-  num="02 03 05 17 19 23 4294967295 4294967294 1073741825 1073741823"
+  local i; local l; local p;
+  local u_max; local u; local sl; local dt;
+  local st; local en;
+  local file;
   echo "num = $num"
   l=10000000
   echo "l   = $l"
@@ -37,14 +44,18 @@ ultrasqrt_par () {
     echo "*** $i ***"
     file=sqrt${p}_${i}.txt
     ./UltraSqrt.exe $i $l >"$file"&
-    u=$u_max; while [[ $u -ge $u_max ]]; do
-      sleep $sl; dt=$(date "+%T")
+    u=$u_max
+    while [[ $u -ge $u_max ]]; do
+      sleep $sl
+      dt=$(date "+%T")
       u=$(ps -f | grep UltraSqrt | wc -l)
       echo "$dt - running processes: $u"
     done
   done
-  u=$u_max; while [[ $u -gt 0 ]]; do
-    sleep $sl; dt=$(date "+%T")
+  u=$u_max
+  while [[ $u -gt 0 ]]; do
+    sleep $sl
+    dt=$(date "+%T")
     u=$(ps -f | grep UltraSqrt | wc -l)
     echo "$dt - running processes: $u"
   done
@@ -58,9 +69,11 @@ ultrasqrt_par () {
   echo
 }
 
-# Coompare
+# Compare
 ultrasqrt_cmp () {
-  num="02 03 05 17 19 23 4294967295 4294967294 1073741825 1073741823"
+  local i; local l; local p1; local p2;
+  local file1; local file2;
+  local h;
   echo "num = $num"
   l=6000000
   echo "l   = $l"

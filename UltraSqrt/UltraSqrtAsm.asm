@@ -220,7 +220,7 @@ _TEXT   SEGMENT
     ;; download the number of bits into register
         mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- rest_end
         mov rax, [RSI]                      ; RAX <- rest[end]
-		mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
+        mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
         mov rcx, ?shift@@3_KA               ; RCX (resp. CL) <- shift
     ;; shift the array in the loop
     l_shiftloop:
@@ -266,7 +266,7 @@ _TEXT   SEGMENT
     ;; loop per actual length of the rest
     l_decloop:
         mov rax, [rsi]                      ; RAX <- rest[iter]
-        mul rbx                             ; RAX * RBX(=5^25) -> RDX:RAX
+        mul rbx                             ; RAX * RBX(=5^27) -> RDX:RAX
         add rax, rcx                        ; RDX:RAX += RCX (=mul carry)
         adc rdx, 0h                         ;  (with carry)
         mov rcx, rdx                        ; RCX (=mul carry) <- RDX

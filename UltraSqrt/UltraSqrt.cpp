@@ -84,9 +84,9 @@ int main(int argc, char* argv[])
     DWORD start_time = GetTickCount();
 
     // memory allocation and initial cleaning
-    rest = (ulonlong*) malloc((len + 3) * sizeof(ulonlong));
+    rest = (ulonlong*) malloc((len + 4) * sizeof(ulonlong));
     base = rest + 2;
-    for (i = 1; i <= len; ++i) base[i] = 0;
+    for (i = 1; i <= len+1; ++i) base[i] = 0;
 
     // calculate first QWORD of partial result
     num = (ulonlong) arg_num;
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
     deci[0] = rest[0];
 
     // translation of binary data into decadic - further "fraction" digits
-    const ulonlong TAILTRIM = 2*48;
+    const ulonlong TAILTRIM = 2 * 48;
     res_beg = rest + (1);
     res_end = rest + (j = len + 1);
     b2dec_str = res_end - res_beg + 1;
@@ -173,11 +173,12 @@ int main(int argc, char* argv[])
     // print evaluation time(s)
     DWORD time;
     time = binar_time - start_time;
-    printf("binar_calc time: %5u.%02u\n",time/1000,time%1000/10);
+    printf("binar_calc time: %5u.%02u\n", time/1000, time%1000/10);
     time = b2dec_time - binar_time;
-    printf("binary2dec time: %5u.%02u\n",time/1000,time%1000/10);
+    printf("binary2dec time: %5u.%02u\n", time/1000, time%1000/10);
     time = b2dec_time - start_time;
-    printf("total_calc time: %5u.%02u\n\n",time/1000,time%1000/10);
+    printf("total_calc time: %5u.%02u\n", time/1000, time%1000/10);
+    printf("\n");
 
     // print the result
     printf("%llu.\n", deci[0]);

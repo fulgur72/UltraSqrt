@@ -65,8 +65,8 @@
 <Font name="Error" background="[255,255,255]" bold="false" executable="false" family="Monospaced" foreground="[255,0,255]" italic="false" opaque="false" readonly="true" size="10" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Heading 1" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="18" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Text" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
-<Font name="Help Bold" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Help Notes" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
+<Font name="Help Bold" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Equation Label" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Heading 4" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="true" opaque="false" readonly="false" size="10" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="LaTeX" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
@@ -154,15 +154,16 @@ end:
 </Group>
 <Group labelreference="L9" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Font encoding="UTF-8"># Decimal group size
-printf(&quot;Decimal group size and binary WORD size:\134n&quot;);
-dec_gr := 27;
-bwd_sz := 64; </Font></Text-field>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Decimal group size
+<Font encoding="UTF-8">printf(&quot;Decimal group size and binary WORD size:\134n&quot;);
+</Font>dec_gr := 27;
+bwd_sz := 64;
+</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">Decimal group size and binary WORD size:
-dec_gr := 27
-bwd_sz := 64</Text-field>
+dec_gr := 27</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">bwd_sz := 64</Text-field>
 </Output>
 </Group>
 <Group labelreference="L3" drawlabel="true">
@@ -200,26 +201,13 @@ printf(&quot;\134n&quot;);
 </Group>
 <Group labelreference="L4" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># How much will grow binary data if multiplied by 5^&quot;dec_gr&quot;
-# - result calculated in binary WORDs of &quot;bwd_sz&quot; bits
-strfrac(dec_gr*ln(5)/bwd_sz<Font encoding="UTF-8">/ln(2), -1, 0.01);
-printf(&quot;\134n&quot;);
-printf(&quot;==&gt; Binary data will grow more than\134n&quot;); 
-printf(&quot;    %d WORDs (%d bit) in %d multiplications by 5^%d\134n&quot;, p, </Font>bwd_sz, q, dec_gr);
-<Font encoding="UTF-8">printf(&quot;\134n&quot;);
-</Font>printf<Font encoding="UTF-8">(&quot;    5^%d = %19d = 0x%08X%08X\134n&quot;, dec_gr, </Font>5^dec_gr, iquo(5^dec_gr, 2^32),irem(5^dec_gr, 2^32));
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Binary to decimal multiplication
+printf<Font encoding="UTF-8">(&quot;5^%d = %19d = 0x%08X%08X\134n&quot;, dec_gr, </Font>5^dec_gr, iquo(5^dec_gr, 2^32),irem(5^dec_gr, 2^32));
 <Font encoding="UTF-8">printf(&quot;\134n&quot;);
 </Font></Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">0, -.979563415030605990507791009320
-1, 0.20436584969394009492208990680e-1
-47/48, -0.396748363939323841124342653e-3
-
-==&gt; Binary data will grow more than
-    47 WORDs (64 bit) in 48 multiplications by 5^27
-
-    5^27 = 7450580596923828125 = 0x6765C793FA10079D
+<Text-field style="Line Printed Output" layout="Line Printed Output">5^27 = 7450580596923828125 = 0x6765C793FA10079D
 </Text-field>
 </Output>
 </Group>

@@ -253,13 +253,20 @@ _TEXT   SEGMENT
         xor rcx, rcx                        ; RCX (=mul carry) <- 0
         mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- res_end
         mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
+        mov r9,  ?res_mid@@3PEA_KEA         ; R9 stopper <- res_mid
+        xor rax, rax                        ; RAX (=tail zero) <- 0h
     ;; perform init zero check
     l_zerocheck:
+        cmp rsi, r9                         ; cmp RSI iter, res_mid
+        ja l_dozero                         ; if iter > res_mid goto dozero
         cmp rsi, r8                         ; cmp RSI iter, res_beg
         jb l_dechead                        ; if iter < stopper goto dechead
         mov rax, [rsi]                      ; RAX <- rest[res_end]
         cmp rax, 0h                         ; cmp RAX, 0h
         jnz l_decloop                       ; if rest[res_end] != 0 goto decloop
+    ;; either pass through 0h values or explicitly clean values behind res_mid
+    l_dozero:
+        mov [rsi], rax                      ; rest[iter] <- RAX (=0h)
         sub rsi, 8h                         ; -- RSI iter (=rest_end)
         mov ?res_end@@3PEA_KEA, rsi         ; res_end <- RSI iter
         jmp l_zerocheck                     ; repeat zerocheck

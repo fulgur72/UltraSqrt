@@ -134,23 +134,18 @@ int main(int argc, char* argv[])
     deci[0] = rest[0];
 
     // translation of binary data into decadic - further "fraction" digits
-    const ulonlong TAILTRIM = 48;
     rest[0] = 0;
     res_beg = rest + (1);
-    res_end = rest + (j = len + 1);
+    res_end = rest + (len+1);
     ulonlong b2dec_str = res_end - res_beg + 1;
     shift = 0;
     for(i = 0; i < dec_len; ++i) {
         // multiplication and shift
+        res_mid = res_beg + len + 1 - (QWORDS * i) / DECGROUPS;
         sqrt_bin_to_dec();
         // storing of the decimal output
         deci[2*i+1] = hi_dec;
         deci[2*i+2] = lo_dec;
-        // restrict the "tail" of the rest fields
-        // by clearing low significant QWORD (= 64 bit)
-        // N times during each N proceedings
-        // (N-1)/N must be slightly less than DECDIG*ln(5)/64*ln(2)
-        if(i % TAILTRIM != 0) rest[j--] = 0;
     }
     ulonlong b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
 

@@ -73,8 +73,9 @@ int main(int argc, char* argv[])
 
     // memory allocation and initial cleaning
     ulonlong* rest = (ulonlong*) malloc((len + 4) * sizeof(ulonlong));
+    rest[0] = rest[1] = 0;
     ulonlong* base = rest + 2;
-    for (i = 1; i <= len+1; ++i) base[i] = 0;
+    for (i = 0; i <= len+1; ++i) base[i] = 0;
 
     // calculate first QWORD of partial result
     num = (ulonlong) arg_num;
@@ -134,6 +135,7 @@ int main(int argc, char* argv[])
 
     // translation of binary data into decadic - further "fraction" digits
     const ulonlong TAILTRIM = 48;
+    rest[0] = 0;
     res_beg = rest + (1);
     res_end = rest + (j = len + 1);
     ulonlong b2dec_str = res_end - res_beg + 1;

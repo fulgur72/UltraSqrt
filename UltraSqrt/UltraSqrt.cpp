@@ -59,9 +59,8 @@ int main(int argc, char* argv[])
     const ulonlong QWORDS = 125489, DECGROUPS = 89543;
     ulonlong dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
     ulonlong len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
-    dec_len *= 2; // DECDIG digits is stored in two QWORDs
-    printf("decimal figures: %8llu\n", DECDIG * dec_len / 2);
-    printf("binary bytes:    %8llu\n", 8 * len);
+    printf("decimal figures: %8llu\n", DECDIG * dec_len);
+    printf("binary bytes:    %8llu\n", sizeof(ulonlong) * len);
 
     // iterators
     ulonlong i, j;
@@ -128,28 +127,28 @@ int main(int argc, char* argv[])
     DWORD binar_time = GetTickCount();
 
     // allocate memory for decadit output
-    ulonlong* deci = (ulonlong*) malloc((dec_len + 1) * sizeof(ulonlong));
+    ulonlong* deci = (ulonlong*) malloc((2 * dec_len + 1) * sizeof(ulonlong));
 
     // translation of binary data into decadic - initial "whole" part
     deci[0] = rest[0];
 
     // translation of binary data into decadic - further "fraction" digits
-    const ulonlong TAILTRIM = 2 * 48;
+    const ulonlong TAILTRIM = 48;
     res_beg = rest + (1);
     res_end = rest + (j = len + 1);
     ulonlong b2dec_str = res_end - res_beg + 1;
     shift = 0;
-    for(i = 1; i < dec_len; i += 2) {
+    for(i = 0; i < dec_len; ++i) {
         // multiplication and shift
         sqrt_bin_to_dec();
         // storing of the decimal output
-        deci[i] = hi_dec;
-        deci[i+1] = lo_dec;
+        deci[2*i+1] = hi_dec;
+        deci[2*i+2] = lo_dec;
         // restrict the "tail" of the rest fields
         // by clearing low significant QWORD (= 64 bit)
         // N times during each N proceedings
         // (N-1)/N must be slightly less than DECDIG*ln(5)/64*ln(2)
-        if(i % TAILTRIM > 1) rest[j--] = 0;
+        if(i % TAILTRIM != 0) rest[j--] = 0;
     }
     ulonlong b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
 
@@ -174,8 +173,8 @@ int main(int argc, char* argv[])
     const ulonlong OUTPUT_SIZE = 100;
     char line[OUTPUT_SIZE + DECDIG];
     ulonlong pos = 0;
-    for(i = 1; i < dec_len; i += 2) {
-        sprintf_s(line + pos, DECDIG + 1, "%015llu%012llu", deci[i], deci[i+1]);
+    for(i = 0; i < dec_len; ++i) {
+        sprintf_s(line + pos, DECDIG + 1, "%015llu%012llu", deci[2*i+1], deci[2*i+2]);
         pos += DECDIG;
         if (pos >= OUTPUT_SIZE) {
             pos -= OUTPUT_SIZE;
@@ -201,7 +200,7 @@ int main(int argc, char* argv[])
     printf("* binary cycles: %8llu\n", len);
     printf("* bi2dec start#: %8llu\n", b2dec_str);
     printf("* bi2dec final#: %8llu\n", b2dec_end);
-    printf("* bi2dec cycles: %8llu\n", dec_len/2);
+    printf("* bi2dec cycles: %8llu\n", dec_len);
 
     return 0;
 }

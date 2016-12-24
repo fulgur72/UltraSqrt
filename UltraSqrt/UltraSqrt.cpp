@@ -117,6 +117,7 @@ int main(int argc, char* argv[])
     // remember lead and next for statistics
     ulonlong lead_stat = rest[0];
     ulonlong next_stat = rest[1];
+    ulonlong shift_stat = shift;
 
     // move the result right by half of the bits
     // which the base was shifted left in the beginning
@@ -191,6 +192,7 @@ int main(int argc, char* argv[])
     printf("\n");
     printf("* binary lead: 0x%016llX\n", lead_stat);
     printf("* binary next: 0x%016llX\n", next_stat);
+    printf("* binar shift: << %2llu bits\n", shift_stat);
     for (i = 0; i <= MAX_ADAPT; ++i) {
         printf("*  bin adapt %llux: %8llu\n", i, adapt_stat[i]);
     }

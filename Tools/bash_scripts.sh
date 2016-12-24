@@ -1,21 +1,22 @@
 #!/bin/bash
 
-num="02 03 05 17 19 23 4294967295 4294967294 1073741825 1073741823"
+num="002 003 005 017 019 023 4294967295 4294967294 1073741825 1073741823"
 
 # One by one processing 6e6
 ultrasqrt_1b1 () {
   local i; local l; local p;
   local st; local en;
   local file;
-  echo "num = $num"
   l=6000000
+  p=6e6
+  while [[ $# -ge 1 ]]; do eval "$1"; shift; done
+  echo "num = $num"
   echo "l   = $l"
   echo
-  p=6e6
   st=$(date "+%s")
   for i in $num; do
     echo "*** $i ***"
-    file=sqrt${p}_${i}.txt
+    file=sqrt_${i}_${p}.txt
     echo "  ==> $file"
     ./UltraSqrt.exe $i $l >"$file"
     head -n 7 "$file"
@@ -31,18 +32,20 @@ ultrasqrt_par () {
   local u_max; local u; local sl; local dt;
   local st; local en;
   local file;
-  echo "num = $num"
   l=10000000
-  echo "l   = $l"
   u_max=2
-  echo "prc = $u_max"
   sl=5
+  p=Ae6
+  while [[ $# -ge 1 ]]; do eval "$1"; shift; done
+  echo "num = $num"
+  echo "l   = $l"
+  echo "prc = $u_max"
   echo
-  p=1e7
   st=$(date "+%s")
   for i in $num; do
     echo "*** $i ***"
-    file=sqrt${p}_${i}.txt
+    file=sqrt_${i}_${p}.txt
+    echo "  ==> $file"
     ./UltraSqrt.exe $i $l >"$file"&
     u=$u_max
     while [[ $u -ge $u_max ]]; do
@@ -62,7 +65,8 @@ ultrasqrt_par () {
   en=$(date "+%s")
   for i in $num; do
     echo "*** $i ***"
-    file=sqrt${p}_${i}.txt
+    file=sqrt_${i}_${p}.txt
+    echo "  <== $file"
     head -n 7 "$file"
   done
   echo "Total time: $(( en-st )) sec"
@@ -74,18 +78,19 @@ ultrasqrt_cmp () {
   local i; local l; local p1; local p2;
   local file1; local file2;
   local h;
-  echo "num = $num"
   l=6000000
+  p1=6e6
+  p2=Ae6
+  while [[ $# -ge 1 ]]; do eval "$1"; shift; done
+  echo "num = $num"
   echo "l   = $l"
   h=$((l/100+8))
   echo
-  p1=1e7
-  p2=6e6
   for i in $num; do
     echo "*** $i ***"
-    file1=sqrt${p1}_${i}.txt
+    file1=sqrt_${i}_${p1}.txt
     echo "< $file1 <<"
-    file2=sqrt${p2}_${i}.txt
+    file2=sqrt_${i}_${p2}.txt
     echo "> $file2 >>"
     diff <(head -n $h "$file1"| tail -n +6) <(head -n $h "$file2"| tail -n +6)
     echo

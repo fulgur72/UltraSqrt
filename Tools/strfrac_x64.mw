@@ -162,8 +162,8 @@ bwd_sz := 64;
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">Decimal group size and binary WORD size:
-dec_gr := 27</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">bwd_sz := 64</Text-field>
+dec_gr := 27
+bwd_sz := 64</Text-field>
 </Output>
 </Group>
 <Group labelreference="L3" drawlabel="true">
@@ -172,9 +172,9 @@ dec_gr := 27</Text-field>
 strfrac(dec_gr*ln(10)/bwd_sz/ln(2), 1, 1e-10);
 <Font encoding="UTF-8">printf(&quot;\134n&quot;);</Font>
 <Font encoding="UTF-8">printf(&quot;==&gt; It is enough to use\134n&quot;);
-printf(&quot;%10d WORDs (%d bit) to carry %d (x %d) decimal digits\134n&quot;, p, </Font>bwd_sz, q, dec_gr);
-printf<Font encoding="UTF-8">(&quot;%10d = 0x%08X\134n&quot;, p</Font>, p);
-printf<Font encoding="UTF-8">(&quot;%10d = 0x%08X\134n&quot;, q, q);
+printf(&quot;    %d WORDs (%d bit) to carry %d (x %d) decimal digits\134n&quot;, p, </Font>bwd_sz, q, dec_gr);
+printf<Font encoding="UTF-8">(&quot;      %10d = 0x%08X\134n&quot;, p</Font>, p);
+printf<Font encoding="UTF-8">(&quot;      %10d = 0x%08X\134n&quot;, q, q);
 printf(&quot;\134n&quot;);
 </Font></Text-field>
 </Input>
@@ -183,8 +183,8 @@ printf(&quot;\134n&quot;);
 3/2, 0.9856158496939400949220899069e-1
 7/5, -0.143841503060599050779100931e-2
 192/137, 0.2143898399254963819439215e-4
-391/279, -0.472327433358907409925304e-5
-974/695, 0.43389025731884472697630e-6
+391/279, -0.472327433358907409925304e-5</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">974/695, 0.43389025731884472697630e-6
 4287/3059, -0.3647552262993243958728e-7
 9548/6813, 0.1150689584421993539609e-7
 13835/9872, -0.336123808126954141450e-8
@@ -194,24 +194,32 @@ printf(&quot;\134n&quot;);
 
 ==&gt; It is enough to use
     125489 WORDs (64 bit) to carry 89543 (x 27) decimal digits
-    125489 = 0x0001EA31
-     89543 = 0x00015DC7
+          125489 = 0x0001EA31
+           89543 = 0x00015DC7
 </Text-field>
 </Output>
 </Group>
 <Group labelreference="L4" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Binary to decimal multiplication
-printf<Font encoding="UTF-8">(&quot;5^%d = %19d = 0x%08X%08X\134n&quot;, dec_gr, </Font>5^dec_gr, iquo(5^dec_gr, 2^32),irem(5^dec_gr, 2^32));
-<Font encoding="UTF-8">printf(&quot;\134n&quot;);
+<Font encoding="UTF-8">printf(&quot;==&gt; Group by group multiplication:\134n&quot;);
+printf(&quot;    dec_gr := %d dec digits (less or equal to [%d * ln(2)/ln(5)] = %d)\134n&quot;, dec_gr, bwd_sz, tru</Font>nc(bwd_sz*ln(2)/ln(5)));
+printf<Font encoding="UTF-8">(&quot;      x  2^%d = &lt;&lt; %d bits\134n&quot;, dec_gr, dec_gr);
+</Font>printf<Font encoding="UTF-8">(&quot;      x  5^%d = x %d = 0x%08X%08X (= %d bits)\134n&quot;, dec_gr, </Font>5^dec_gr, iquo(5^dec_gr, 2^32),irem(5^dec_gr, 2^32), 1+trunc(dec_gr*log[2](5)));
+printf<Font encoding="UTF-8">(&quot;      = 10^%d = next %d decadic digits\134n&quot;, dec_gr, dec_gr);
+printf(&quot;\134n&quot;);
 </Font></Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">5^27 = 7450580596923828125 = 0x6765C793FA10079D
+<Text-field style="Line Printed Output" layout="Line Printed Output">==&gt; Group by group multiplication:
+    dec_gr := 27 dec digits (less or equal to [64 * ln(2)/ln(5)] = 27)
+      x  2^27 = &lt;&lt; 27 bits
+      x  5^27 = x 7450580596923828125 = 0x6765C793FA10079D (= 63 bits)
+      = 10^27 = next 27 decadic digits
 </Text-field>
 </Output>
 </Group>
-<Group labelreference="L8" drawlabel="true">
+<Group labelreference="L10" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>

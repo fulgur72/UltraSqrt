@@ -8,7 +8,6 @@ PUBLIC  ?sqrt_init_qword@@YAHXZ             ; sqrt_init_qword
 PUBLIC  ?sqrt_next_guess@@YAHXZ             ; sqrt_next_guess
 PUBLIC  ?sqrt_check_next@@YAHXZ             ; sqrt_check_next
 PUBLIC  ?sqrt_subtr_next@@YAHXZ             ; sqrt_subtr_next
-PUBLIC  ?sqrt_shift_rest@@YAHXZ             ; sqrt_subtr_next
 PUBLIC  ?sqrt_bin_to_dec@@YAHXZ             ; sqrt_bin_to_dec
 
 ;;***************************************************
@@ -209,37 +208,6 @@ _TEXT   SEGMENT
 ?sqrt_subtr_next@@YAHXZ ENDP                ; sqrt_subtr_next
 
 ;;***************************************************
-;; PROC sqrt_shift_rest
-;;
-;; - shift (final) result back to revert inital shift
-;;   applied in proc 'sqrt_init_qword' so that
-;;   rest[0] contains whole part of the 'sqrt(num)'
-;;***************************************************
-?sqrt_shift_rest@@YAHXZ PROC                ; sqrt_subtr_next
-
-    ;; download the number of bits into register
-        mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- rest_end
-        mov rax, [RSI]                      ; RAX <- rest[end]
-        mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
-        mov rcx, ?shift@@3_KA               ; RCX (resp. CL) <- shift
-    ;; shift the array in the loop
-    l_shiftloop:
-        sub rsi, 8h                         ; -- RSI (=iter-1)
-        mov rbx, [rsi]                      ; RBX <- rest[iter]
-        shrd rax, rbx, cl                   ; RBX:RAX >> CL
-        mov [rsi+8h], rax                   ; rest[iter+1] <- RAX
-        mov rax, rbx                        ; RAX <- RBX
-        cmp rsi, r8                         ; cmp RSI iter, R8 stopper
-        ja l_shiftloop                      ; if iter > stopper repeat shiftloop
-    ;; shift the last element
-        shr rax, cl                         ; RAX >> CL
-        mov [rsi], rax                      ; rest[iter(=res_beg)] <- RAX
-
-    ret 0
-
-?sqrt_shift_rest@@YAHXZ ENDP                ; sqrt_subtr_next
-
-;;***************************************************
 ;; PROC sqrt_bin_to_dec
 ;;
 ;; - converts binary result from 'rest'
@@ -249,13 +217,22 @@ _TEXT   SEGMENT
 ;;***************************************************
 ?sqrt_bin_to_dec@@YAHXZ PROC                ; sqrt_bin_to_dec
 
-        mov rbx, 7450580596923828125        ; RBX <- 5^27
-        xor rcx, rcx                        ; RCX (=mul carry) <- 0
         mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- res_end
         mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
         mov r9,  ?res_mid@@3PEA_KEA         ; R9 stopper <- res_mid
+    ;; clean top bits in rest[res_beg]
+        mov rcx, ?shift@@3_KA               ; RCX <- shift
+        mov rbx, [r8]                       ; RBX <- rest[res_beg]
+        xor rax, rax                        ; RAX <- 0h
+        shrd rax, rbx, cl                   ; RAX <- RBX >> shift
+        xor rbx, rbx                        ; RBX <- 0h
+        shld rbx, rax, cl                   ; RBX <- RAX << shift
+        mov [r8], rbx                       ; rest[res_beg] <- RBX
+    ;; preparing registers
         xor rax, rax                        ; RAX (=tail zero) <- 0h
-    ;; perform init zero check
+        mov rbx, 7450580596923828125        ; RBX <- 5^27
+        xor rcx, rcx                        ; RCX (=mul carry) <- 0
+    ;; checking rest[res_end] if it is zero
     l_zerocheck:
         cmp rsi, r9                         ; cmp RSI iter, res_mid
         ja l_dozero                         ; if iter > res_mid goto dozero
@@ -283,27 +260,25 @@ _TEXT   SEGMENT
         jae l_decloop                       ; if iter >= res_beg repeat decloop
     ;; head processing - shift by 2^27
     l_dechead:
-        xor rdx, rdx                        ; RDX = 0
-        mov rax, rcx                        ; RAX <- RCX (=last mul carry)
+        xor rbx, rbx                        ; RBX <- 0
+        mov rdx, rcx                        ; RDX <- RCX (=last mul carry)
+        mov rax, [r8]                       ; RAX <- rest[res_beg]
         mov rcx, ?shift@@3_KA               ; RCX <- shift
-        add rcx, 27                         ; RCX += 27
-        cmp rcx, 64                         ; cmp RCX, 64
-        jb l_simple2mul                     ; if RCX < 64 goto simple2mul
-    ;; shift of res_beg by 1 QWORD
-        sub rcx, 64                         ; RCX -= 64
-        xchg rdx, rax                       ; RDX <-> RAX
-        xchg rax, [r8]                      ; RAX <-> rest[rest_beg]
+        sub rcx, 27                         ; RCX -= 27
+        jae l_simple2mul                    ; if RCX >= 27 goto simple2mul
+    ;; shift of res_beg by 1 QWORD, add 64 to shift
+        mov [r8], rbx                       ; rest[rest_beg] <- 0
         add r8, 8h                          ; ++ R8 stopper
         mov ?res_beg@@3PEA_KEA, r8          ; res_beg <- R8 stopper
+        mov rbx, rdx                        ; RBX <- RDX
+        mov rdx, rax                        ; RDX <- RAX
+        mov rax, [r8]                       ; RAX <- rest[res_beg]
+        add rcx, 64                         ; RCX += 64
     ;; simple shift (without res_beg change)
     l_simple2mul:
+        shrd rax, rdx, cl                   ; (RBX:)RDX:RAX >> CL
+        shrd rdx, rbx, cl                   ;   top bits from RBX
         mov ?shift@@3_KA, rcx               ; shift <- RCX
-        mov rbx, [r8]                       ; RBX <- rest[res_beg]
-        shld rdx, rax, cl                   ; RDX:RAX << CL
-        shld rax, rbx, cl                   ;   lower bits from RBX
-        shl rbx, cl                         ; RBX cleaning of top bits
-        shr rbx, cl                         ;   being shifted to RAX
-        mov [r8], rbx                       ; rest[res_beg] <- RBX
     ;; split of "whole" part into 13 and 12 decimal digits
         mov rbx, 1000000000000              ; RBX <- 1,000,000,000,000
         div rbx                             ; RDX:RAX / RBX(=1e12) -> RAX, rest RDX

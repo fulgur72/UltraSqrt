@@ -30,7 +30,6 @@ int sqrt_init_qword();
 int sqrt_next_guess();
 int sqrt_check_next();
 int sqrt_subtr_next();
-int sqrt_shift_rest();
 int sqrt_bin_to_dec();
 
 int main(int argc, char* argv[])
@@ -114,16 +113,16 @@ int main(int argc, char* argv[])
         }
     }
 
-    // remember lead and next for statistics
+    // remember lead, next and shift for statistics
     ulonlong lead_stat = rest[0];
     ulonlong next_stat = rest[1];
     ulonlong shift_stat = shift;
 
     // move the result right by half of the bits
     // which the base was shifted left in the beginning
-    res_beg = rest;
-    res_end = rest + (len + 1);
-    sqrt_shift_rest();
+    // res_beg = rest;
+    // res_end = rest + (len + 1);
+    // sqrt_shift_rest();
 
     // binar time
     DWORD binar_time = GetTickCount();
@@ -132,14 +131,12 @@ int main(int argc, char* argv[])
     ulonlong* deci = (ulonlong*) malloc((2 * dec_len + 1) * sizeof(ulonlong));
 
     // translation of binary data into decadic - initial "whole" part
-    deci[0] = rest[0];
+    deci[0] = rest[0] >> shift;
 
     // translation of binary data into decadic - further "fraction" digits
-    rest[0] = 0;
-    res_beg = rest + (1);
-    res_end = rest + (len+1);
+    res_beg = rest;
+    res_end = rest + (len);
     ulonlong b2dec_str = res_end - res_beg + 1;
-    shift = 0;
     for(i = 0; i < dec_len; ++i) {
         // multiplication and shift
         res_mid = res_beg + len + 1 - (QWORDS * i) / DECGROUPS;

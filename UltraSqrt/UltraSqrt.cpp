@@ -118,12 +118,6 @@ int main(int argc, char* argv[])
     ulonlong next_stat = rest[1];
     ulonlong shift_stat = shift;
 
-    // move the result right by half of the bits
-    // which the base was shifted left in the beginning
-    // res_beg = rest;
-    // res_end = rest + (len + 1);
-    // sqrt_shift_rest();
-
     // binar time
     DWORD binar_time = GetTickCount();
 

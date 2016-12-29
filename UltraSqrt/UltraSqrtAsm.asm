@@ -5,10 +5,11 @@
 ;;***************************************************
 
 PUBLIC  ?sqrt_init_qword@@YAHXZ             ; sqrt_init_qword
-PUBLIC  ?sqrt_next_guess@@YAHXZ             ; sqrt_next_guess
+PUBLIC  ?sqrt_guess_next@@YAHXZ             ; sqrt_guess_next
 PUBLIC  ?sqrt_check_next@@YAHXZ             ; sqrt_check_next
 PUBLIC  ?sqrt_subtr_next@@YAHXZ             ; sqrt_subtr_next
-PUBLIC  ?sqrt_bin_to_dec@@YAHXZ             ; sqrt_bin_to_dec
+PUBLIC  ?sqrt_b2dec_init@@YAHXZ             ; sqrt_b2dec_init
+PUBLIC  ?sqrt_b2dec_next@@YAHXZ             ; sqrt_b2dec_next
 
 ;;***************************************************
 ;; Extern data from 'UltraSqrt.cpp'
@@ -53,7 +54,8 @@ _TEXT   SEGMENT
     ;; subtract first bit of result (always 1)
         sub rax, rdx                        ; RAX (=num) -= RDX (=part result)
     ;; cycle per all other bits except the last one
-        mov rbx, 1000000000000000h          ; RBX (=next bit) <- RDX >> 2
+        mov rbx, rdx                        ;
+        shr rbx, 2                          ; RBX (=next bit) <- RDX >> 2
     l_loop:
         mov rdi, rdx                        ; RDI <- RDX (temp result)
         add rdi, rbx                        ; RDI += RBX (=next bit)
@@ -93,24 +95,25 @@ _TEXT   SEGMENT
 ?sqrt_init_qword@@YAHXZ ENDP                ; sqrt_init_qword
 
 ;;***************************************************
-;; PROC sqrt_next_guess
+;; PROC sqrt_guess_next
 ;;
 ;; - calculate first approximation of the 'next'
 ;;   QWORD of partial result using 2 QWORDs from
 ;;   base and 'lead' of the partial result
 ;;***************************************************
-?sqrt_next_guess@@YAHXZ PROC                ; sqrt_next_guess (==> next)
+?sqrt_guess_next@@YAHXZ PROC                ; sqrt_guess_next
 
-    mov rbx, ?lead@@3_KA                    ; RBX <- lead
-    mov rdi, ?bas_beg@@3PEA_KEA             ; RDI iter <- bas_beg
-    mov rdx, [rdi]                          ; RDX <- base[iter]
-    mov rax, [rdi+8h]                       ; RAX <- base[iter+1]
-    div rbx                                 ; RDX:RAX / RBX -> RAX, rest RDX
-    mov ?next@@3_KA, rax                    ; next <- RAX
+    ;; divide 'base[bas_beg]:base[bas_beg+1]' by 'lead' to get "initial" value of 'next'
+        mov rbx, ?lead@@3_KA                ; RBX <- lead
+        mov rdi, ?bas_beg@@3PEA_KEA         ; RDI iter <- bas_beg
+        mov rdx, [rdi]                      ; RDX <- base[iter]
+        mov rax, [rdi+8h]                   ; RAX <- base[iter+1]
+        div rbx                             ; RDX:RAX / RBX -> RAX, rest RDX
+        mov ?next@@3_KA, rax                ; next <- RAX
 
     ret 0
 
-?sqrt_next_guess@@YAHXZ ENDP                ; sqrt_next_guess
+?sqrt_guess_next@@YAHXZ ENDP                ; sqrt_guess_next
 
 ;;***************************************************
 ;; PROC sqrt_check_next
@@ -208,27 +211,45 @@ _TEXT   SEGMENT
 ?sqrt_subtr_next@@YAHXZ ENDP                ; sqrt_subtr_next
 
 ;;***************************************************
-;; PROC sqrt_bin_to_dec
+;; PROC sqrt_b2dec_init
+;;
+;; - converts top bits of binary result from 'rest'
+;;   to decimal output
+;;***************************************************
+?sqrt_b2dec_init@@YAHXZ PROC                ; sqrt_b2dec_init
+
+    ;; read and shift rest[res_beg] to get initial whole part
+        mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
+        mov rax, [r8]                       ; RAX <- rest[res_beg]
+        mov rcx, ?shift@@3_KA               ; RCX <- shift
+        shrd rsi, rax, cl                   ; RSI <- store bottom CL bits of RAX
+        shr rax, cl                         ; RAX >> CL
+        mov ?hi_dec@@3_KA, rax              ; hi_dec <- RAX
+    ;; clean (already) used top bits from rest[res_beg]
+        xor rax, rax                        ; RAX <- 0
+        shld rax, rsi, cl                   ; RAX <- restore bottom CL bits from RSI
+        mov [r8], rax                       ; rest[res_beg] <- RAX
+
+    ret 0
+
+?sqrt_b2dec_init@@YAHXZ ENDP                ; sqrt_b2dec_init
+
+;;***************************************************
+;; PROC sqrt_b2dec_next
 ;;
 ;; - converts binary result from 'rest'
-;;   to decimal result in 'base' multiplying
-;;   'rest' by 5^27 to get next 27 digits
-;;   and additionally shifting the head by 27 bits
+;;   to decimal result multiplying 'rest'
+;;   by 5^27 (instead of 10^27)
+;;   and additionally shifting the head
+;;   of the result by remaining 27 bits
 ;;***************************************************
-?sqrt_bin_to_dec@@YAHXZ PROC                ; sqrt_bin_to_dec
+?sqrt_b2dec_next@@YAHXZ PROC                ; sqrt_b2dec_next
 
+    ;; read iterators and stoppers
         mov rsi, ?res_end@@3PEA_KEA         ; RSI iter <- res_end
         mov r8,  ?res_beg@@3PEA_KEA         ; R8 stopper <- res_beg
         mov r9,  ?res_mid@@3PEA_KEA         ; R9 stopper <- res_mid
-    ;; clean top bits in rest[res_beg]
-        mov rcx, ?shift@@3_KA               ; RCX <- shift
-        mov rbx, [r8]                       ; RBX <- rest[res_beg]
-        xor rax, rax                        ; RAX <- 0h
-        shrd rax, rbx, cl                   ; RAX <- RBX >> shift
-        xor rbx, rbx                        ; RBX <- 0h
-        shld rbx, rax, cl                   ; RBX <- RAX << shift
-        mov [r8], rbx                       ; rest[res_beg] <- RBX
-    ;; preparing registers
+    ;; prepare registers
         xor rax, rax                        ; RAX (=tail zero) <- 0h
         mov rbx, 7450580596923828125        ; RBX <- 5^27
         xor rcx, rcx                        ; RCX (=mul carry) <- 0
@@ -262,32 +283,35 @@ _TEXT   SEGMENT
     l_dechead:
         xor rbx, rbx                        ; RBX <- 0
         mov rdx, rcx                        ; RDX <- RCX (=last mul carry)
-        mov rax, [r8]                       ; RAX <- rest[res_beg]
         mov rcx, ?shift@@3_KA               ; RCX <- shift
         sub rcx, 27                         ; RCX -= 27
-        jae l_simple2mul                    ; if RCX >= 27 goto simple2mul
+        jae l_nobegshift                    ; if RCX >= 27 goto nobegshift
     ;; shift of res_beg by 1 QWORD, add 64 to shift
-        mov [r8], rbx                       ; rest[rest_beg] <- 0
+        xchg rbx, rdx                       ; RBX <-> RDX (<- 0)
+        xchg rdx, [r8]                      ; RDX <-> rest[res_beg] (<- 0)
         add r8, 8h                          ; ++ R8 stopper
         mov ?res_beg@@3PEA_KEA, r8          ; res_beg <- R8 stopper
-        mov rbx, rdx                        ; RBX <- RDX
-        mov rdx, rax                        ; RDX <- RAX
-        mov rax, [r8]                       ; RAX <- rest[res_beg]
         add rcx, 64                         ; RCX += 64
-    ;; simple shift (without res_beg change)
-    l_simple2mul:
+    ;; simple "whole" part bit separation (without res_beg shift)
+    l_nobegshift:
+        mov ?shift@@3_KA, rcx               ; shift <- RCX (updated value stored)
+        mov rax, [r8]                       ; RAX <- rest[res_beg]
+        shrd rsi, rax, cl                   ; RSI <- store bottom CL bits of RAX
         shrd rax, rdx, cl                   ; (RBX:)RDX:RAX >> CL
-        shrd rdx, rbx, cl                   ;   top bits from RBX
-        mov ?shift@@3_KA, rcx               ; shift <- RCX
+        shrd rdx, rbx, cl                   ;   top bits filled from RBX
     ;; split of "whole" part into 13 and 12 decimal digits
         mov rbx, 1000000000000              ; RBX <- 1,000,000,000,000
         div rbx                             ; RDX:RAX / RBX(=1e12) -> RAX, rest RDX
         mov ?hi_dec@@3_KA, rax              ; hi_dec <- RAX
         mov ?lo_dec@@3_KA, rdx              ; lo_dec <- RDX
+    ;; clean (already) used top bits from rest[res_beg]
+        xor rax, rax                        ; RAX <- 0
+        shld rax, rsi, cl                   ; RAX <- restore bottom CL bits from RSI
+        mov [r8], rax                       ; rest[res_beg] <- RAX
 
     ret 0
 
-?sqrt_bin_to_dec@@YAHXZ ENDP                ; sqrt_bin_to_dec
+?sqrt_b2dec_next@@YAHXZ ENDP                ; sqrt_b2dec_next
 
 _TEXT   ENDS
 

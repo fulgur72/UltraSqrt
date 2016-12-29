@@ -25,7 +25,6 @@ EXTRN    ?next@@3_KA        :QWORD          ; next
 EXTRN    ?shift@@3_KA       :QWORD          ; shift
 EXTRN    ?hi_dec@@3_KA      :QWORD          ; hi_dec
 EXTRN    ?lo_dec@@3_KA      :QWORD          ; lo_dec
-EXTRN    ?adapt_stat@@3PA_KA:QWORD          ; adapt_stat
 
 _TEXT   SEGMENT
 
@@ -125,11 +124,9 @@ _TEXT   SEGMENT
 ?sqrt_check_next@@YAHXZ PROC                ; sqrt_check_next (==> next, adjust)
 
     ;; reset adapt counter and read "next"
-        xor r9, r9                          ; R9 adjust <- 0
         mov rbx, ?next@@3_KA                ; RBX <- next
     ;; try next adaptation
     l_adjustnext:
-        inc r9                              ; ++ R9 adjust
         inc rbx                             ; ++ RBX (=next)
     ;; check overload
         jz l_adjustback                     ; if ZF goto adjustback
@@ -161,13 +158,10 @@ _TEXT   SEGMENT
         jmp l_postadjust                    ; otherwise goto postadjust
     ;; decrease (back) next DWORD
     l_adjustback:
-        dec r9                              ; -- R9 adjust
         dec rbx                             ; -- RBX
     ;; update next
     l_postadjust:
         mov ?next@@3_KA, rbx                ; next <- RBX
-        lea r8, offset ?adapt_stat@@3PA_KA  ; R8 <- adapt_stat (ptr)
-        inc qword ptr [r8+8*r9]             ; ++ adapt_stat[R9]
 
     ret 0
 

@@ -21,10 +21,6 @@ ulonlong *res_beg, *res_mid, *res_end;
 // decimal output
 ulonlong hi_dec, lo_dec;
 
-// adapt statistics
-const ulonlong MAX_ADAPT = 2;
-ulonlong adapt_stat[MAX_ADAPT+1];
-
 // assembler functions
 int sqrt_init_qword();
 int sqrt_guess_next();
@@ -62,11 +58,8 @@ int main(int argc, char* argv[])
     const ulonlong QWORDS = 125489, DECGROUPS = 89543;
     ulonlong dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
     ulonlong len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
-    printf("decimal figures: %8llu\n", DECDIG * dec_len);
-    printf("binary bytes:    %8llu\n", sizeof(ulonlong) * len);
-
-    // reset adapt statistics
-    for (i = 0; i <= MAX_ADAPT; ++i) adapt_stat[i] = 0;
+    printf("* decadic  figures: %8llu\n", DECDIG * dec_len);
+    printf("* binary data size: %8llu\n", sizeof(ulonlong) * len);
 
     // start time
     DWORD start_time = GetTickCount();
@@ -85,8 +78,13 @@ int main(int argc, char* argv[])
     num = (ulonlong) arg_num;
     sqrt_init_qword();
 
+    // adapt statistics
+    const ulonlong MAX_ADAPT = 2;
+    ulonlong adapt_stat[MAX_ADAPT + 1];
+    for (i = 0; i <= MAX_ADAPT; ++i) adapt_stat[i] = 0;
+
     // cycle for next QWORD of the result
-    for(i = 1; i <= len; ++i) {
+    for (i = 1; i <= len; ++i) {
 
         // update 'base' and 'rest' pointers
         j = (2*i <= len ? 2*i : len+1);
@@ -104,7 +102,9 @@ int main(int argc, char* argv[])
         }
 
         // check next QWORD and try to adapt it
+        ulonlong next_guess = next;
         sqrt_check_next();
+        ++ adapt_stat[next-next_guess];
 
         // set next QWORD to the end of partial result
         *res_end = next;
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 
     // binary to decimal "next" digits
     ulonlong b2dec_str = res_end - res_beg + 1;
-    for(i = 0; i < dec_len; ++i) {
+    for (i = 0; i < dec_len; ++i) {
         // restriction of the "remaining" binary result to only relevalt QWORDs
         res_mid = res_beg + len + 1 - (QWORDS * i) / DECGROUPS;
         // multiplication and shift
@@ -152,11 +152,11 @@ int main(int argc, char* argv[])
     // print calculation time(s)
     DWORD time;
     time = binar_time - start_time;
-    printf("binar_calc time: %5u.%02u\n", time/1000, time%1000/10);
+    printf("* binary calc time: %5u.%02u\n", time/1000, time%1000/10);
     time = b2dec_time - binar_time;
-    printf("binary2dec time: %5u.%02u\n", time/1000, time%1000/10);
+    printf("* bi2dec calc time: %5u.%02u\n", time/1000, time%1000/10);
     time = b2dec_time - start_time;
-    printf("total_calc time: %5u.%02u\n", time/1000, time%1000/10);
+    printf("* total  calc time: %5u.%02u\n", time/1000, time%1000/10);
     printf("\n");
 
     // print the result
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
     const ulonlong OUTPUT_SIZE = 100;
     char line[OUTPUT_SIZE + DECDIG];
     ulonlong pos = 0;
-    for(i = 0; i < dec_len; ++i) {
+    for (i = 0; i < dec_len; ++i) {
         sprintf_s(line + pos, DECDIG + 1, "%015llu%012llu", deci[2*i+1], deci[2*i+2]);
         pos += DECDIG;
         if (pos >= OUTPUT_SIZE) {
@@ -185,14 +185,14 @@ int main(int argc, char* argv[])
     printf("\n");
     printf("* binary lead: 0x%016llX\n", lead_stat);
     printf("* binary next: 0x%016llX\n", next_stat);
-    printf("* binar shift: << %2llu bits\n", shift_stat);
+    printf("* binary shift   <<  %2llu bits\n", shift_stat);
     for (i = 0; i <= MAX_ADAPT; ++i) {
-        printf("*  bin adapt %llux: %8llu\n", i, adapt_stat[i]);
+        printf("* + bin adapt  %llux : %8llu\n", i, adapt_stat[i]);
     }
-    printf("* binary cycles: %8llu\n", len);
-    printf("* bi2dec start#: %8llu\n", b2dec_str);
-    printf("* bi2dec final#: %8llu\n", b2dec_end);
-    printf("* bi2dec cycles: %8llu\n", dec_len);
+    printf("* bin calc cycles : %8llu\n", len);
+    printf("* bi2dec start ## : %8llu\n", b2dec_str);
+    printf("* bi2dec final ## : %8llu\n", b2dec_end);
+    printf("* dec calc cycles : %8llu\n", dec_len);
 
     return 0;
 }

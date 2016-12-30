@@ -102,7 +102,7 @@ num2hexstr := proc(num::integer, len::integer)
   od;
   hexstr := convert(hexstr, string);
 end:
-Size := 64:
+Size := 32:
 adjust_prob := proc(sq::integer, cycl::integer)
   global Size;
   local ee, num, l, n, nn, p0, p1, p2, c0, c1, c2;
@@ -127,311 +127,246 @@ adjust_prob := proc(sq::integer, cycl::integer)
   c1 := round((p1+p2)*cycl)-c2;
   c0 := cycl-c1-c2;
 <Font encoding="UTF-8">  printf(&quot;sqrt(%d)\134n&quot;,sq);
-  printf(&quot;\134n&quot;);
-  printf(&quot;* binary lead: 0x%s\134n&quot;, num2hexstr(l, Size/4));
-  printf(&quot;* binary next: 0x%s\134n&quot;,</Font> num2hexstr(n, Size/4));
-<Font encoding="UTF-8">  printf(&quot;* binary shift   &lt;&lt;  %d bits\134n&quot;,</Font> (Size-1-ee));
-<Font encoding="UTF-8">  printf(&quot;* + bin adapt  0x : %8d    ~ %12.8f %%\134n&quot;, c0,</Font> 100*p0);
-<Font encoding="UTF-8">  printf(&quot;* + bin adapt  1x : %8d    ~ %12.8f %%\134n&quot;, c1,</Font> 100*p1);
-<Font encoding="UTF-8">  printf(&quot;* + bin adapt  2x : %8d    ~ %12.8f %%\134n&quot;, c2,</Font> 100*p2);
-<Font encoding="UTF-8">  printf(&quot;* bin calc cycles : %8d\134n&quot;, cycles);
-  printf(&quot;\134n&quot;);
+  printf(&quot;binar_lead: 0x%s\134n&quot;, num2hexstr(l, Size/4));
+  printf(&quot;binar_next: 0x%s\134n&quot;,</Font> num2hexstr(n, Size/4));
+<Font encoding="UTF-8">  printf(&quot;Adjust 0x probability: %10.6f %% (~ %8d cycles)\134n&quot;, 100*p0, c0);
+  printf(&quot;Adjust 1x probability: %10.6f %% (~ %8d cycles)\134n&quot;, 100*p1, c1);
+  printf(&quot;Adjust 2x probability: %10.6f %% (~ %8d cycles)\134n&quot;, 100*p2, c2);
 </Font>end:
 </Text-field>
 </Input>
 </Group>
 <Group labelreference="L19" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Cycles needed for computation of: 2,000,025
-cycles := 103812;
-</Text-field>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Cycles needed for computation of: 1,000,000
+cycles := 103811;</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">cycles := 103812</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">cycles := 103811</Text-field>
 </Output>
 </Group>
 <Group labelreference="L3" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2 )
-adjust_prob(2, cycles);
-</Text-field>
+adjust_prob(2, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(2)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xB504F333F9DE6484
-* binary next: 0x597D89B3754ABE9F
-* binary shift   &lt;&lt;  63 bits
-* + bin adapt  0x :    56067    ~  54.00778135 %
-* + bin adapt  1x :    47745    ~  45.99221865 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">binar_lead: 0xB504F333
+binar_next: 0xF9DE6484
+Adjust 0x probability:  98.306458 % (~   102053 cycles)
+Adjust 1x probability:   1.693542 % (~     1758 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L7" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 3 )
-adjust_prob(3, cycles);
-</Text-field>
+adjust_prob(3, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(3)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xDDB3D742C265539D
-* binary next: 0x92BA16B83C5C1DC4
-* binary shift   &lt;&lt;  63 bits
-* + bin adapt  0x :    78228    ~  75.35591859 %
-* + bin adapt  1x :    25584    ~  24.64408141 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(3)
+binar_lead: 0xDDB3D742
+binar_next: 0xC265539D
+Adjust 0x probability:  86.106564 % (~    89388 cycles)
+Adjust 1x probability:  13.893436 % (~    14423 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L4" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 5 )
-adjust_prob(5, cycles);
-</Text-field>
+adjust_prob(5, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(5)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x8F1BBCDCBFA53E0A
-* binary next: 0xF9CE60302E76E41A
-* binary shift   &lt;&lt;  62 bits
-* + bin adapt  0x :   101565    ~  97.83595969 %
-* + bin adapt  1x :     2247    ~   2.16404031 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(5)
+binar_lead: 0x8F1BBCDC
+binar_next: 0xBFA53E0A
+Adjust 0x probability:  77.515455 % (~    80470 cycles)
+Adjust 1x probability:  22.484545 % (~    23341 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L9" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 17 )
-adjust_prob(17, cycles);
-</Text-field>
+adjust_prob(17, cycles);</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(17)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x83F07B357F6837AD
-* binary next: 0x64788CA985442EB0
-* binary shift   &lt;&lt;  61 bits
-* + bin adapt  0x :    44033    ~  42.41629924 %
-* + bin adapt  1x :    58371    ~  56.22779470 %
-* + bin adapt  2x :     1408    ~   1.35590606 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">binar_lead: 0x83F07B35
+binar_next: 0x7F6837AD
+Adjust 0x probability:  51.268188 % (~    53222 cycles)
+Adjust 1x probability:  48.731812 % (~    50589 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L6" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 19 )
-adjust_prob(19, cycles);
-</Text-field>
+adjust_prob(19, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(19)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x8B7C19A3226FC42F
-* binary next: 0x30CFEBC76E44424C
-* binary shift   &lt;&lt;  61 bits
-* + bin adapt  0x :    34945    ~  33.66143191 %
-* + bin adapt  1x :    60634    ~  58.40816252 %
-* + bin adapt  2x :     8233    ~   7.93040558 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(19)
+binar_lead: 0x8B7C19A3
+binar_next: 0x226FC42F
+Adjust 0x probability:  31.477392 % (~    32677 cycles)
+Adjust 1x probability:  57.623134 % (~    59819 cycles)
+Adjust 2x probability:  10.899474 % (~    11315 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L8" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 23 )
-adjust_prob(23, cycles);
-</Text-field>
+adjust_prob(23, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(23)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x997773ABB820B3DB
-* binary next: 0x1CEE61D5FE4BC494
-* binary shift   &lt;&lt;  61 bits
-* + bin adapt  0x :    35081    ~  33.79297276 %
-* + bin adapt  1x :    60662    ~  58.43417654 %
-* + bin adapt  2x :     8069    ~   7.77285070 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(23)
+binar_lead: 0x997773AB
+binar_next: 0xB820B3DB
+Adjust 0x probability:  76.583748 % (~    79502 cycles)
+Adjust 1x probability:  23.416252 % (~    24309 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L10" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 1 ) - maximal value
-adjust_prob(2^32-1, cycles);
-</Text-field>
+adjust_prob(2^32-1, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967295)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xFFFFFFFF7FFFFFFF
-* binary next: 0xDFFFFFFFEFFFFFFF
-* binary shift   &lt;&lt;  48 bits
-* + bin adapt  0x :    97324    ~  93.75000000 %
-* + bin adapt  1x :     6488    ~   6.25000000 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967295)
+binar_lead: 0xFFFFFFFF
+binar_next: 0x7FFFFFFF
+Adjust 0x probability:  75.000000 % (~    77858 cycles)
+Adjust 1x probability:  25.000000 % (~    25953 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L14" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 2 ) - maximal value - 1
-adjust_prob(2^32-2, cycles);
-</Text-field>
+adjust_prob(2^32-2, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967294)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xFFFFFFFEFFFFFFFF
-* binary next: 0x7FFFFFFF7FFFFFFF
-* binary shift   &lt;&lt;  48 bits
-* + bin adapt  0x :    77859    ~  74.99999999 %
-* + bin adapt  1x :    25953    ~  25.00000001 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967294)
+binar_lead: 0xFFFFFFFE
+binar_next: 0xFFFFFFFF
+Adjust 0x probability: 100.000000 % (~   103811 cycles)
+Adjust 1x probability:   0.000000 % (~        0 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L17" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 + 1 ) - max adjust
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^14 + 1 ) - max adjust
 # ***************************************************
 # Explanation of &quot;max adjust&quot;:
-# ==&gt; min lead: 2^63 + X
+# ==&gt; min lead: 2^31 + X
 # ==&gt; next as low as possible
-# &lt;== assume X := 2^32-1 then
-# [ 2^63 + (2^32-1) ]^2 =
-#  = 2^126 + 2^96 - 2^64 + 2^64 - 2^33 + 1 =
-#  = 2^126 + 2^96 - 2^33 + 1 &lt; 2^126 + 2^96 =
-#  = (2^30 + 1) * 2^96
-# ==&gt; 2^30 + 1 will generate:
-# * lead = 2^63 + (2^32-1)
+# &lt;== assume X := 2^16-1 then
+# [ 2^31 + (2^16-1) ]^2 =
+#  = 2^62 + 2^48 - 2^32 + 2^32 - 2^17 + 1 =
+#  = 2^62 + 2^48 - 2^17 + 1 &lt; 2^62 + 2^48 =
+#  = (2^14 + 1) * 2^48
+# ==&gt; 2^14 + 1 will generate:
+# * lead = 2^31 + (2^16-1)
 # * next &gt;0 but small because
-#    lead^2 &lt; (2^30 + 1) * 2^96 but difference is
+#    lead^2 &lt; (2^14 + 1) * 2^48 but difference is
 #    small and therefore next will be also small
 # ***************************************************
-adjust_prob(2^30+1, cycles);
-</Text-field>
+adjust_prob(2^14+1, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(1073741825)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x80000000FFFFFFFF
-* binary next: 0x00000001FFFFFFFB
-* binary shift   &lt;&lt;  48 bits
-* + bin adapt  0x :    25953    ~  25.00000002 %
-* + bin adapt  1x :    51906    ~  50.00000005 %
-* + bin adapt  2x :    25953    ~  24.99999993 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(16385)
+binar_lead: 0x8000FFFF
+binar_next: 0x0001FFFB
+Adjust 0x probability:  25.001526 % (~    25954 cycles)
+Adjust 1x probability:  50.003051 % (~    51909 cycles)
+Adjust 2x probability:  24.995423 % (~    25948 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L15" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 - 1 ) - min adjust
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^14 - 1 ) - min adjust
 # ***************************************************
 # Explanation of &quot;min adjust&quot;:
-# ==&gt; max lead: 2^64 - X
+# ==&gt; max lead: 2^32 - X
 # ==&gt; next as high as possible
-# &lt;== assume X := 2*(2^32+1) then
-# [ 2^64 - 2*(2^32+1) ]^2 =
-#  = 2^128 - 2^98 - 2^66 + 2^66 + 2^35 + 4 =
-#  = 2^128 - 2^98 + 2^35 + 4 &gt; 2^128 - 2^98 =
-#  = (2^30 - 1) * 2^98
-# ==&gt; 2^30 - 1 will generate:
-# * lead = 2^64 - 2*(2^32+1) - 1 because
-#    (2^64-X)^2 &gt; (2^30-1) * 2^98 but difference is
-#    small and therefore next will be close to 2^64
-# * next only slightly less than 2^64
+# &lt;== assume X := 2*(2^16+1) then
+# [ 2^32 - 2*(2^16+1) ]^2 =
+#  = 2^64 - 2^50 - 2^34 + 2^34 + 2^19 + 4 =
+#  = 2^64 - 2^50 + 2^19 + 4 &gt; 2^64 - 2^50 =
+#  = (2^14 - 1) * 2^50
+# ==&gt; 2^14 - 1 will generate:
+# * lead = 2^32 - 2*(2^16+1) - 1 because
+#    (2^32-X)^2 &gt; (2^14-1) * 2^50 but difference is
+#    small and therefore next will be close to 2^32
+# * next only slightly less than 2^32
 # ***************************************************
-adjust_prob(2^30-1, cycles);
-</Text-field>
+adjust_prob(2^14-1, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(1073741823)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xFFFFFFFDFFFFFFFD
-* binary next: 0xFFFFFFFBFFFFFFF5
-* binary shift   &lt;&lt;  49 bits
-* + bin adapt  0x :   103812    ~  99.99999995 %
-* + bin adapt  1x :        0    ~   0.00000005 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(16383)
+binar_lead: 0xFFFDFFFD
+binar_next: 0xFFFBFFF5
+Adjust 0x probability:  99.996948 % (~   103808 cycles)
+Adjust 1x probability:   0.003052 % (~        3 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L18" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^62 + 1 ) - &quot;another&quot; min adjust
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 + 1 ) - &quot;another&quot; min adjust
 # ***************************************************
 # Explanation:
 # ==&gt; maximize next
-# &lt;== assume lead := 2^63 + 1
-# [ 2^63 + 1 ]^2 =
-#  = 2^126 + 2^64 + 1 &gt; 2^126 + 2^64 =
-#  = (2^62 + 1) * 2^64
-# ==&gt; 2^62 + 1 will generate:
-# * lead = 2^63 + 1 - 1 = 2^63 because
-#    (2^63+1)^2 &gt; (2^62+1) * 2^64 but difference is
-#    only 1 and therefore next will be 2^64-1
-# * next = 2^64 - 1
+# &lt;== assume lead := 2^31 + 1
+# [ 2^31 + 1 ]^2 =
+#  = 2^62 + 2^32 + 1 &gt; 2^62 + 2^32 =
+#  = (2^30 + 1) * 2^32
+# ==&gt; 2^30 + 1 will generate:
+# * lead = 2^31 + 1 - 1 = 2^31 because
+#    (2^31+1)^2 &gt; (2^30+1) * 2^32 but difference is
+#    only 1 and therefore next will be 2^32-1
+# * next = 2^32 - 1
 # ***************************************************
-adjust_prob(2^62+1, cycles);
-</Text-field>
+adjust_prob(2^30+1, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4611686018427387905)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x8000000000000000
-* binary next: 0xFFFFFFFFFFFFFFFF
-* binary shift   &lt;&lt;  32 bits
-* + bin adapt  0x :   103812    ~ 100.00000000 %
-* + bin adapt  1x :        0    ~   0.00000000 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(1073741825)
+binar_lead: 0x80000000
+binar_next: 0xFFFFFFFF
+Adjust 0x probability: 100.000000 % (~   103811 cycles)
+Adjust 1x probability:   0.000000 % (~        0 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L26" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^64 - 2 ) - &quot;another&quot; min adjust
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 2 ) - &quot;another&quot; min adjust
 # ***************************************************
 # Explanation:
 # ==&gt; maximize both lead and next
-# &lt;== assume lead := 2^64 - 1
-# [ 2^64 - 1 ]^2 =
-#  = 2^128 - 2^65 + 1 &gt; 2^128 - 2^65 =
-#  = (2^64 - 2) * 2^64
-# ==&gt; 2^64 - 2 will generate:
-# * lead = 2^64 - 1 - 1 = 2^64 - 2 because
-#    (2^64-1)^2 &gt; (2^64-2) * 2^64 but difference is
-#    only 1 and therefore next will be 2^64-1
-# * next = 2^64 - 1
+# &lt;== assume lead := 2^32 - 1
+# [ 2^32 - 1 ]^2 =
+#  = 2^64 - 2^33 + 1 &gt; 2^64 - 2^33 =
+#  = (2^32 - 2) * 2^32
+# ==&gt; 2^32 - 2 will generate:
+# * lead = 2^32 - 1 - 1 = 2^32 - 2 because
+#    (2^32-1)^2 &gt; (2^32-2) * 2^32 but difference is
+#    only 1 and therefore next will be 2^32-1
+# * next = 2^32 - 1
 # ***************************************************
-adjust_prob(2^64-2, cycles);
-</Text-field>
+adjust_prob(2^32-2, cycles);</Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(18446744073709551614)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xFFFFFFFFFFFFFFFE
-* binary next: 0xFFFFFFFFFFFFFFFF
-* binary shift   &lt;&lt;  32 bits
-* + bin adapt  0x :   103812    ~ 100.00000000 %
-* + bin adapt  1x :        0    ~   0.00000000 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967294)
+binar_lead: 0xFFFFFFFE
+binar_next: 0xFFFFFFFF
+Adjust 0x probability: 100.000000 % (~   103811 cycles)
+Adjust 1x probability:   0.000000 % (~        0 cycles)
+Adjust 2x probability:   0.000000 % (~        0 cycles)</Text-field>
 </Output>
 </Group>
 <Group labelreference="L20" drawlabel="true">

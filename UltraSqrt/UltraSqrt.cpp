@@ -8,6 +8,16 @@
 typedef unsigned long ulong;
 typedef unsigned long long ulonlong;
 
+#define uL  "%lu"
+#define uLL "%llu"
+#define u8LL "%8llu"
+#define u016LLX "%016llX"
+
+#define fTime "%5u.%02u"
+#define pTime(time) time/1000, time%1000/10
+
+#define fDec "%015llu%012llu"
+
 // Data used in processing
 
 // aux variables
@@ -38,13 +48,13 @@ int main(int argc, char* argv[])
     // scan and check cmd line arguments
     bool isOk = true;
     if(isOk) isOk = (argc == 3);
-    if(isOk) isOk = (sscanf_s(argv[1],"%lu",&arg_num) == 1 && arg_num != 0);
-    if(isOk) isOk = (sscanf_s(argv[2],"%lu",&arg_len) == 1 && arg_len <= MAX_LEN);
+    if(isOk) isOk = (sscanf_s(argv[1], uL, &arg_num) == 1 && arg_num != 0);
+    if(isOk) isOk = (sscanf_s(argv[2], uL, &arg_len) == 1 && arg_len <= MAX_LEN);
     if(isOk) {
         // print input 'arg_num' value
-        printf("sqrt(%lu)\n", arg_num);
+        printf("sqrt(" uL ")\n", arg_num);
     } else {
-        printf("Use: %s <number> <length>, where <length> <= %lu\n", argv[0], MAX_LEN);
+        printf("Use: %s <number> <length>, where <length> <= " uL "\n", argv[0], MAX_LEN);
         return 1;
     }
 
@@ -58,8 +68,8 @@ int main(int argc, char* argv[])
     const ulonlong QWORDS = 125489, DECGROUPS = 89543;
     ulonlong dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
     ulonlong len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
-    printf("* decadic  figures: %8llu\n", DECDIG * dec_len);
-    printf("* binary data size: %8llu\n", sizeof(ulonlong) * len);
+    printf("* decadic  figures: " u8LL "\n", DECDIG * dec_len);
+    printf("* binary data size: " u8LL "\n", sizeof(ulonlong) * len);
 
     // start time
     DWORD start_time = GetTickCount();
@@ -152,20 +162,20 @@ int main(int argc, char* argv[])
     // print calculation time(s)
     DWORD time;
     time = binar_time - start_time;
-    printf("* binary calc time: %5u.%02u\n", time/1000, time%1000/10);
+    printf("* binary calc time: " fTime "\n", pTime(time));
     time = b2dec_time - binar_time;
-    printf("* bi2dec calc time: %5u.%02u\n", time/1000, time%1000/10);
+    printf("* bi2dec calc time: " fTime "\n", pTime(time));
     time = b2dec_time - start_time;
-    printf("* total  calc time: %5u.%02u\n", time/1000, time%1000/10);
+    printf("* total  calc time: " fTime "\n", pTime(time));
     printf("\n");
 
     // print the result
-    printf("%llu.\n", deci[0]);
+    printf(uLL ".\n", deci[0]);
     const ulonlong OUTPUT_SIZE = 100;
     char line[OUTPUT_SIZE + DECDIG];
     ulonlong pos = 0;
     for (i = 0; i < dec_len; ++i) {
-        sprintf_s(line + pos, DECDIG + 1, "%015llu%012llu", deci[2*i+1], deci[2*i+2]);
+        sprintf_s(line + pos, DECDIG + 1, fDec, deci[2*i+1], deci[2*i+2]);
         pos += DECDIG;
         if (pos >= OUTPUT_SIZE) {
             pos -= OUTPUT_SIZE;
@@ -183,16 +193,16 @@ int main(int argc, char* argv[])
 
     // print statistics
     printf("\n");
-    printf("* binary lead: 0x%016llX\n", lead_stat);
-    printf("* binary next: 0x%016llX\n", next_stat);
-    printf("* binary shift   <<  %2llu bits\n", shift_stat);
+    printf("* binary lead: " u016LLX "\n", lead_stat);
+    printf("* binary next: " u016LLX "\n", next_stat);
+    printf("* binary shift   <<  " uLL " bits\n", shift_stat);
     for (i = 0; i <= MAX_ADAPT; ++i) {
-        printf("* + bin adapt  %llux : %8llu\n", i, adapt_stat[i]);
+        printf("* + bin adapt  " uLL "x : " u8LL "\n", i, adapt_stat[i]);
     }
-    printf("* bin calc cycles : %8llu\n", len);
-    printf("* bi2dec start ## : %8llu\n", b2dec_str);
-    printf("* bi2dec final ## : %8llu\n", b2dec_end);
-    printf("* dec calc cycles : %8llu\n", dec_len);
+    printf("* bin calc cycles : " u8LL "\n", len);
+    printf("* bi2dec start ## : " u8LL "\n", b2dec_str);
+    printf("* bi2dec final ## : " u8LL "\n", b2dec_end);
+    printf("* dec calc cycles : " u8LL "\n", dec_len);
 
     return 0;
 }

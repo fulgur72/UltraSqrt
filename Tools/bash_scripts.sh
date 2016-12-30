@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ultra_bin=./UltraSqrt.exe
+
 num="002 003 005 017 019 023 4294967295 4294967294 1073741825 1073741823"
 
 # One by one processing 6e6
@@ -10,6 +12,7 @@ ultrasqrt_1b1 () {
   l=6000000
   p=6e6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
+  echo "ultra_bin = $ultra_bin"
   echo "num = $num"
   echo "l   = $l"
   echo
@@ -18,7 +21,7 @@ ultrasqrt_1b1 () {
     echo "*** $i ***"
     file=sqrt_${i}_${p}.txt
     echo "  ==> $file"
-    ./UltraSqrt.exe $i $l >"$file"
+    $ultra_bin $i $l >"$file"
     head -n 7 "$file"
   done
   en=$(date "+%s")
@@ -37,6 +40,7 @@ ultrasqrt_par () {
   sl=5
   p=Ae6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
+  echo "ultra_bin = $ultra_bin"
   echo "num = $num"
   echo "l   = $l"
   echo "prc = $u_max"
@@ -46,7 +50,7 @@ ultrasqrt_par () {
     echo "*** $i ***"
     file=sqrt_${i}_${p}.txt
     echo "  ==> $file"
-    ./UltraSqrt.exe $i $l >"$file"&
+    $ultra_bin $i $l >"$file"&
     u=$u_max
     while [[ $u -ge $u_max ]]; do
       sleep $sl

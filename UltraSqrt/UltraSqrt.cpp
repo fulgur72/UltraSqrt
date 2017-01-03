@@ -11,12 +11,15 @@ typedef unsigned long long ulonlong;
 #define uL  "%lu"
 #define uLL "%llu"
 #define u8LL "%8llu"
-#define u016LLX "%016llX"
+#define u016LLX "0x%016llX"
 
 #define fTime "%5u.%02u"
 #define pTime(time) time/1000, time%1000/10
 
 #define fDec "%015llu%012llu"
+
+#define fPerc "%3llu.%02llu %%"
+#define pPerc(part,total) 100*part/total, 10000*part/total%100
 
 // Data used in processing
 
@@ -169,6 +172,20 @@ int main(int argc, char* argv[])
     printf("* total  calc time: " fTime "\n", pTime(time));
     printf("\n");
 
+    // print statistics
+    printf("* binary lead: " u016LLX "\n", lead_stat);
+    printf("* binary next: " u016LLX "\n", next_stat);
+    printf("* binary shift   <<  " uLL " bits\n", shift_stat);
+    for (i = 0; i <= MAX_ADAPT; ++i) {
+        ulonlong adapt = adapt_stat[i];
+        printf("* + bin adapt  " uLL "x : " u8LL " ~ " fPerc "\n", i, adapt, pPerc(adapt, len));
+    }
+    printf("* bin calc cycles : " u8LL "\n", len);
+    printf("* bi2dec start ## : " u8LL "\n", b2dec_str);
+    printf("* bi2dec final ## : " u8LL "\n", b2dec_end);
+    printf("* dec calc cycles : " u8LL "\n", dec_len);
+    printf("\n");
+
     // print the result
     printf(uLL ".\n", deci[0]);
     const ulonlong OUTPUT_SIZE = 100;
@@ -190,19 +207,6 @@ int main(int argc, char* argv[])
 
     // release memory for decadic output
     free(deci);
-
-    // print statistics
-    printf("\n");
-    printf("* binary lead: " u016LLX "\n", lead_stat);
-    printf("* binary next: " u016LLX "\n", next_stat);
-    printf("* binary shift   <<  " uLL " bits\n", shift_stat);
-    for (i = 0; i <= MAX_ADAPT; ++i) {
-        printf("* + bin adapt  " uLL "x : " u8LL "\n", i, adapt_stat[i]);
-    }
-    printf("* bin calc cycles : " u8LL "\n", len);
-    printf("* bi2dec start ## : " u8LL "\n", b2dec_str);
-    printf("* bi2dec final ## : " u8LL "\n", b2dec_end);
-    printf("* dec calc cycles : " u8LL "\n", dec_len);
 
     return 0;
 }

@@ -10,6 +10,7 @@ ultrasqrt_1b1 () {
   local st; local en;
   local file;
   l=6000000
+  d=6e6
   p=6e6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
   echo "ultra_bin = $ultra_bin"
@@ -19,7 +20,7 @@ ultrasqrt_1b1 () {
   st=$(date "+%s")
   for i in $num; do
     echo "*** $i ***"
-    file=sqrt_${i}_${p}.txt
+    file=$d/sqrt_${i}_${p}.txt
     echo "  ==> $file"
     $ultra_bin $i $l >"$file"
     head -n 7 "$file"
@@ -38,6 +39,7 @@ ultrasqrt_par () {
   l=10000000
   u_max=2
   sl=5
+  d=Ae6
   p=Ae6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
   echo "ultra_bin = $ultra_bin"
@@ -48,7 +50,7 @@ ultrasqrt_par () {
   st=$(date "+%s")
   for i in $num; do
     echo "*** $i ***"
-    file=sqrt_${i}_${p}.txt
+    file=$d/sqrt_${i}_${p}.txt
     echo "  ==> $file"
     $ultra_bin $i $l >"$file"&
     u=$u_max
@@ -82,21 +84,24 @@ ultrasqrt_cmp () {
   local i; local l; local p1; local p2;
   local file1; local file2;
   local h;
+  local gsrc="/^sqrt/ || /^\* decadic/ || /^\* total/ || /^\* \+/ { print; next } /^[0-9]/ { if (num>=0) print; --num }"
   l=6000000
+  d1=6e6
+  d2=Ae6
   p1=6e6
   p2=Ae6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
   echo "num = $num"
   echo "l   = $l"
-  h=$((l/100+8))
+  h=$((l/100))
   echo
   for i in $num; do
     echo "*** $i ***"
-    file1=sqrt_${i}_${p1}.txt
+    file1=$d1/sqrt_${i}_${p1}.txt
     echo "< $file1 <<"
-    file2=sqrt_${i}_${p2}.txt
+    file2=$d2/sqrt_${i}_${p2}.txt
     echo "> $file2 >>"
-    diff <(head -n $h "$file1"| tail -n +6) <(head -n $h "$file2"| tail -n +6)
+    diff <(gawk -v num=$h -- "$gsrc" "$file1") <(gawk -v num=$h -- "$gsrc" "$file2")
     echo
   done
 }

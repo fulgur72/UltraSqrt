@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     // How many QWORDs of 64 bit each is needed to carry binary data
     // corresponding to required groups of DECDIG decimal digits
     // QWORDS/DECGROUPS must be slightly more than DECDIG*ln(10)/64*ln(2)
-    const ulonlong DECDIG = 27, DECDIG_HI = 15, DECDIG_LO = DECDIG - DECDIG_HI;
+    const ulonlong DECDIG = 27;
     const ulonlong QWORDS = 125489, DECGROUPS = 89543;
     ulonlong dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
     ulonlong len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
     // binary to dec preparation
     dec_size = DECDIG;
     dec_mul = 1; for (i = 0; i < DECDIG; ++i) dec_mul *= 5;
-    dec_split = 1; for (i = 0; i < DECDIG_LO; ++i) dec_split *= 10;
+    dec_split = 1; for (i = 0; i < DECDIG/2; ++i) dec_split *= 10;
 
     // binary to decimal "init"
     sqrt_b2dec_init();
@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
     const ulonlong OUTPUT_SIZE = 100;
     char line[OUTPUT_SIZE + DECDIG];
     ulonlong pos = 0;
-    int size1 = (int) DECDIG_HI, size2 = (int) DECDIG_LO;
+    int size1 = (int) ((DECDIG+1)/2), size2 = (int) (DECDIG/2);
     for (i = 0; i < dec_len; ++i) {
         sprintf_s(line + pos, DECDIG + 1, fDec, size1, deci[2*i+1], size2, deci[2*i+2]);
         pos += DECDIG;

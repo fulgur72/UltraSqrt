@@ -91,19 +91,37 @@
 <Text-field style="Text" layout="Normal"><Font bold="true" family="Calibri" underline="true" size="18">sqrt algorithm - next partial result adjust calculations</Font></Text-field>
 </Input>
 </Group>
-<Group labelreference="L2" drawlabel="true">
+<Section collapsed="true" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Text-field style="Heading 1" layout="Heading 1"><Font size="14">Initial settings &amp; helpers</Font></Text-field></Title>
+<Group autoexecute="true" labelreference="L32" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal">Digits := 50:
-num2hexstr := proc(num::integer, len::integer)
+Size := 64:</Text-field>
+</Input>
+</Group>
+<Group autoexecute="true" labelreference="L35" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal">num2hexstr := proc(num::integer, len::integer)
   local hexstr;
   hexstr := convert(num, hex);
   while length(hexstr) &lt; len do
     hexstr := cat(&quot;0&quot;, hexstr);
   od;
   hexstr := convert(hexstr, string);
-end:
-Size := 64:
-adjust_prob := proc(sq::integer, cycl::integer)
+end:</Text-field>
+</Input>
+</Group>
+<Group labelreference="L31" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
+</Section>
+<Section collapsed="true" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Text-field style="Heading 1" layout="Heading 1"><Font size="14">Adjust probability code</Font></Text-field></Title>
+<Group autoexecute="true" labelreference="L34" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal">adjust_prob := proc(sq::integer, cycl::integer)
   global Size;
   local ee, num, l, n, nn, p0, p1, p2, c0, c1, c2;
   ee := trunc(log[4](sq));
@@ -134,175 +152,123 @@ adjust_prob := proc(sq::integer, cycl::integer)
 <Font encoding="UTF-8">  printf(&quot;* + bin adapt  0x : %8d    ~ %12.8f %%\134n&quot;, c0,</Font> 100*p0);
 <Font encoding="UTF-8">  printf(&quot;* + bin adapt  1x : %8d    ~ %12.8f %%\134n&quot;, c1,</Font> 100*p1);
 <Font encoding="UTF-8">  printf(&quot;* + bin adapt  2x : %8d    ~ %12.8f %%\134n&quot;, c2,</Font> 100*p2);
-<Font encoding="UTF-8">  printf(&quot;* bin calc cycles : %8d\134n&quot;, cycles);
+<Font encoding="UTF-8">  printf(&quot;* bin calc cycles : %8d\134n&quot;, cycl);
   printf(&quot;\134n&quot;);
-</Font>end:
-</Text-field>
+</Font>end:</Text-field>
 </Input>
 </Group>
-<Group labelreference="L19" drawlabel="true">
+<Group labelreference="L33" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
+</Section>
+<Section collapsed="true" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Text-field style="Heading 1" layout="Heading 1"><Font size="14">Adjust find code</Font></Text-field></Title>
+<Group autoexecute="true" labelreference="L37" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal">adjust_find := proc(st::integer, en::integer, expv::integer, sgn::integer, err::integer)
+  global Size;
+  local ee, num, l, n, sq;
+  printf(&quot;Find 'lead' + 'next' ~=~ 0x%s<Font encoding="UTF-8"> - go from %d to %d\134n&quot;</Font>, num2hexstr(expv, Size/4), st, en);
+<Font encoding="UTF-8">  printf(&quot;\134n&quot;);</Font>
+  for sq from st to en do
+    if sq &gt; trunc(sqrt(sq))^2 and sq mod 4 &gt; 0 then
+      ee := trunc(log[4](sq));
+      num := evalf(sqrt(sq)*2^(Size-1-ee));
+      l := trunc(num);
+      n := trunc((num-l)*2^Size);
+      if abs(l+n-expv) &lt; err and (l+n-expv)*sgn &gt;= 0 then
+        printf(&quot;%18d ~ 0x%s + 0x%s = 'expv<Font encoding="UTF-8">' %+18d (0x%s)\134n&quot;, sq, </Font>num2hexstr(l, Size/4), num2hexstr(n, Size/4), l+n-expv, num2hexstr(abs(l+n-expv), Size/4));
+      fi;
+    fi;
+  od;
+<Font encoding="UTF-8">  printf(&quot;\134n&quot;);</Font>
+end:</Text-field>
+</Input>
+</Group>
+<Group labelreference="L36" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
+</Section>
+<Section collapsed="false" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Text-field style="Heading 1" layout="Heading 1">Cycles</Text-field></Title>
+<Group autoexecute="true" labelreference="L57" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Cycles needed for computation of: 2,000,025
-cycles := 103812;
-</Text-field>
+cycles := 103812;</Text-field>
 </Input>
 <Output>
 <Text-field style="Line Printed Output" layout="Line Printed Output">cycles := 103812</Text-field>
 </Output>
 </Group>
-<Group labelreference="L3" drawlabel="true">
+<Group labelreference="L58" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
+</Section>
+<Section collapsed="false" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Text-field style="Heading 1" layout="Heading 1">Adjust probablity cases</Text-field></Title>
+<Group labelreference="L43" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2 )
-adjust_prob(2, cycles);
-</Text-field>
+adjust_prob(2, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(2)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xB504F333F9DE6484
-* binary next: 0x597D89B3754ABE9F
-* binary shift   &lt;&lt;  63 bits
-* + bin adapt  0x :    56067    ~  54.00778135 %
-* + bin adapt  1x :    47745    ~  45.99221865 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L7" drawlabel="true">
+<Group labelreference="L42" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 3 )
-adjust_prob(3, cycles);
-</Text-field>
+adjust_prob(3, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(3)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xDDB3D742C265539D
-* binary next: 0x92BA16B83C5C1DC4
-* binary shift   &lt;&lt;  63 bits
-* + bin adapt  0x :    78228    ~  75.35591859 %
-* + bin adapt  1x :    25584    ~  24.64408141 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L4" drawlabel="true">
+<Group labelreference="L41" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 5 )
-adjust_prob(5, cycles);
-</Text-field>
+adjust_prob(5, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(5)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x8F1BBCDCBFA53E0A
-* binary next: 0xF9CE60302E76E41A
-* binary shift   &lt;&lt;  62 bits
-* + bin adapt  0x :   101565    ~  97.83595969 %
-* + bin adapt  1x :     2247    ~   2.16404031 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L9" drawlabel="true">
+<Group labelreference="L40" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 17 )
-adjust_prob(17, cycles);
-</Text-field>
+adjust_prob(17, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(17)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x83F07B357F6837AD
-* binary next: 0x64788CA985442EB0
-* binary shift   &lt;&lt;  61 bits
-* + bin adapt  0x :    44033    ~  42.41629924 %
-* + bin adapt  1x :    58371    ~  56.22779470 %
-* + bin adapt  2x :     1408    ~   1.35590606 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L6" drawlabel="true">
+<Group labelreference="L39" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 19 )
-adjust_prob(19, cycles);
-</Text-field>
+adjust_prob(19, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(19)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x8B7C19A3226FC42F
-* binary next: 0x30CFEBC76E44424C
-* binary shift   &lt;&lt;  61 bits
-* + bin adapt  0x :    34945    ~  33.66143191 %
-* + bin adapt  1x :    60634    ~  58.40816252 %
-* + bin adapt  2x :     8233    ~   7.93040558 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L8" drawlabel="true">
+<Group labelreference="L38" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 23 )
-adjust_prob(23, cycles);
-</Text-field>
+adjust_prob(23, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(23)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x997773ABB820B3DB
-* binary next: 0x1CEE61D5FE4BC494
-* binary shift   &lt;&lt;  61 bits
-* + bin adapt  0x :    35081    ~  33.79297276 %
-* + bin adapt  1x :    60662    ~  58.43417654 %
-* + bin adapt  2x :     8069    ~   7.77285070 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L10" drawlabel="true">
+<Group labelreference="L46" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 1 ) - maximal value
-adjust_prob(2^32-1, cycles);
-</Text-field>
+adjust_prob(2^32-1, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967295)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xFFFFFFFF7FFFFFFF
-* binary next: 0xDFFFFFFFEFFFFFFF
-* binary shift   &lt;&lt;  48 bits
-* + bin adapt  0x :    97324    ~  93.75000000 %
-* + bin adapt  1x :     6488    ~   6.25000000 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L14" drawlabel="true">
+<Group labelreference="L47" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 2 ) - maximal value - 1
-adjust_prob(2^32-2, cycles);
-</Text-field>
+adjust_prob(2^32-2, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4294967294)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xFFFFFFFEFFFFFFFF
-* binary next: 0x7FFFFFFF7FFFFFFF
-* binary shift   &lt;&lt;  48 bits
-* + bin adapt  0x :    77859    ~  74.99999999 %
-* + bin adapt  1x :    25953    ~  25.00000001 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L17" drawlabel="true">
+<Group labelreference="L48" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
+</Section>
+<Section collapsed="false" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Text-field style="Heading 1" layout="Heading 1">Adjust probability extremes</Text-field></Title>
+<Group labelreference="L49" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 + 1 ) - max adjust
 # ***************************************************
@@ -320,23 +286,10 @@ adjust_prob(2^32-2, cycles);
 #    lead^2 &lt; (2^30 + 1) * 2^96 but difference is
 #    small and therefore next will be also small
 # ***************************************************
-adjust_prob(2^30+1, cycles);
-</Text-field>
+adjust_prob(2^30+1, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(1073741825)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x80000000FFFFFFFF
-* binary next: 0x00000001FFFFFFFB
-* binary shift   &lt;&lt;  48 bits
-* + bin adapt  0x :    25953    ~  25.00000002 %
-* + bin adapt  1x :    51906    ~  50.00000005 %
-* + bin adapt  2x :    25953    ~  24.99999993 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L15" drawlabel="true">
+<Group labelreference="L50" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 - 1 ) - min adjust
 # ***************************************************
@@ -354,23 +307,10 @@ adjust_prob(2^30+1, cycles);
 #    small and therefore next will be close to 2^64
 # * next only slightly less than 2^64
 # ***************************************************
-adjust_prob(2^30-1, cycles);
-</Text-field>
+adjust_prob(2^30-1, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(1073741823)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xFFFFFFFDFFFFFFFD
-* binary next: 0xFFFFFFFBFFFFFFF5
-* binary shift   &lt;&lt;  49 bits
-* + bin adapt  0x :   103812    ~  99.99999995 %
-* + bin adapt  1x :        0    ~   0.00000005 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L18" drawlabel="true">
+<Group labelreference="L51" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^62 + 1 ) - &quot;another&quot; min adjust
 # ***************************************************
@@ -386,23 +326,10 @@ adjust_prob(2^30-1, cycles);
 #    only 1 and therefore next will be 2^64-1
 # * next = 2^64 - 1
 # ***************************************************
-adjust_prob(2^62+1, cycles);
-</Text-field>
+adjust_prob(2^62+1, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(4611686018427387905)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0x8000000000000000
-* binary next: 0xFFFFFFFFFFFFFFFF
-* binary shift   &lt;&lt;  32 bits
-* + bin adapt  0x :   103812    ~ 100.00000000 %
-* + bin adapt  1x :        0    ~   0.00000000 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L26" drawlabel="true">
+<Group labelreference="L52" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^64 - 2 ) - &quot;another&quot; min adjust
 # ***************************************************
@@ -418,23 +345,47 @@ adjust_prob(2^62+1, cycles);
 #    only 1 and therefore next will be 2^64-1
 # * next = 2^64 - 1
 # ***************************************************
-adjust_prob(2^64-2, cycles);
-</Text-field>
+adjust_prob(2^64-2, cycles);</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">sqrt(18446744073709551614)</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">
-* binary lead: 0xFFFFFFFFFFFFFFFE
-* binary next: 0xFFFFFFFFFFFFFFFF
-* binary shift   &lt;&lt;  32 bits
-* + bin adapt  0x :   103812    ~ 100.00000000 %
-* + bin adapt  1x :        0    ~   0.00000000 %
-* + bin adapt  2x :        0    ~   0.00000000 %
-* bin calc cycles :   103812
-</Text-field>
-</Output>
 </Group>
-<Group labelreference="L20" drawlabel="true">
+<Group labelreference="L53" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
+</Section>
+<Section collapsed="false" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Text-field style="Heading 1" layout="Heading 1">Adjust find cases</Text-field></Title>
+<Group labelreference="L54" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 + 1 ) - max adjust
+# ***************************************************
+# &lt;== Minimize lead + next ~=~ 2^63
+# ***************************************************
+adjust_find(2^28-2, 2^28+2, 2^63, 0, 2^48);
+adjust_find(2^30-8, 2^30+8, 2^63, 0, 2^48);
+adjust_prob(2^28+1, cycles);
+adjust_prob(2^30+1, cycles);</Text-field>
+</Input>
+</Group>
+<Group labelreference="L55" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( ??? ) - adjust at most 1x
+# ***************************************************
+# &lt;== Find lead + next ~=~ 2^64
+# ***************************************************
+# adjust_find(2, 2^18, 2^64, 1, 2^48);
+adjust_prob(40429, cycles);
+adjust_prob(157387, cycles);</Text-field>
+</Input>
+</Group>
+<Group labelreference="L56" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
+</Section>
+<Group labelreference="L7" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>

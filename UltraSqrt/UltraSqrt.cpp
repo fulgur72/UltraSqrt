@@ -16,7 +16,7 @@ typedef unsigned long long ulonlong;
 #define fTime "%5u.%02u"
 #define pTime(time) time/1000, time%1000/10
 
-#define fDec "%015llu%012llu"
+#define fDec "%0*llu%0*llu"
 
 #define fPerc "%3llu.%02llu %%"
 #define pPerc(part,total) 100*part/total, 10000*part/total%100
@@ -33,6 +33,7 @@ ulonlong *res_beg, *res_mid, *res_end;
 
 // decimal output
 ulonlong hi_dec, lo_dec;
+ulonlong dec_size, dec_mul, dec_split;
 
 // assembler functions
 int sqrt_init_qword();
@@ -67,7 +68,7 @@ int main(int argc, char* argv[])
     // How many QWORDs of 64 bit each is needed to carry binary data
     // corresponding to required groups of DECDIG decimal digits
     // QWORDS/DECGROUPS must be slightly more than DECDIG*ln(10)/64*ln(2)
-    const ulonlong DECDIG = 27;
+    const ulonlong DECDIG = 27, DECDIG_HI = 15, DECDIG_LO = DECDIG - DECDIG_HI;
     const ulonlong QWORDS = 125489, DECGROUPS = 89543;
     ulonlong dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
     ulonlong len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
@@ -139,6 +140,11 @@ int main(int argc, char* argv[])
     // allocate memory for decadic output
     ulonlong* deci = (ulonlong*) malloc((2 * dec_len + 1) * sizeof(ulonlong));
 
+    // binary to dec preparation
+    dec_size = DECDIG;
+    dec_mul = 1; for (i = 0; i < DECDIG; ++i) dec_mul *= 5;
+    dec_split = 1; for (i = 0; i < DECDIG_LO; ++i) dec_split *= 10;
+
     // binary to decimal "init"
     sqrt_b2dec_init();
     deci[0] = hi_dec;
@@ -191,8 +197,9 @@ int main(int argc, char* argv[])
     const ulonlong OUTPUT_SIZE = 100;
     char line[OUTPUT_SIZE + DECDIG];
     ulonlong pos = 0;
+    int size1 = (int) DECDIG_HI, size2 = (int) DECDIG_LO;
     for (i = 0; i < dec_len; ++i) {
-        sprintf_s(line + pos, DECDIG + 1, fDec, deci[2*i+1], deci[2*i+2]);
+        sprintf_s(line + pos, DECDIG + 1, fDec, size1, deci[2*i+1], size2, deci[2*i+2]);
         pos += DECDIG;
         if (pos >= OUTPUT_SIZE) {
             pos -= OUTPUT_SIZE;

@@ -25,6 +25,9 @@ EXTRN    ?next@@3_KA        :QWORD          ; next
 EXTRN    ?shift@@3_KA       :QWORD          ; shift
 EXTRN    ?hi_dec@@3_KA      :QWORD          ; hi_dec
 EXTRN    ?lo_dec@@3_KA      :QWORD          ; lo_dec
+EXTRN    ?dec_size@@3_KA    :QWORD          ; dec_size
+EXTRN    ?dec_mul@@3_KA     :QWORD          ; dec_mul
+EXTRN    ?dec_split@@3_KA   :QWORD          ; dec_split
 
 _TEXT   SEGMENT
 
@@ -245,7 +248,7 @@ _TEXT   SEGMENT
         mov r9,  ?res_mid@@3PEA_KEA         ; R9 stopper <- res_mid
     ;; prepare registers
         xor rax, rax                        ; RAX (=tail zero) <- 0h
-        mov rbx, 7450580596923828125        ; RBX <- 5^27
+        mov rbx, ?dec_mul@@3_KA             ; RBX <- dec_mul
         xor rcx, rcx                        ; RCX (=mul carry) <- 0
     ;; checking rest[res_end] if it is zero
     l_zerocheck:
@@ -278,8 +281,8 @@ _TEXT   SEGMENT
         xor rbx, rbx                        ; RBX <- 0
         mov rdx, rcx                        ; RDX <- RCX (=last mul carry)
         mov rcx, ?shift@@3_KA               ; RCX <- shift
-        sub rcx, 27                         ; RCX -= 27
-        jae l_nobegshift                    ; if RCX >= 27 goto nobegshift
+        sub rcx, ?dec_size@@3_KA            ; RCX -= dec_size
+        jae l_nobegshift                    ; if RCX >= dec_size goto nobegshift
     ;; shift of res_beg by 1 QWORD, add 64 to shift
         xchg rbx, rdx                       ; RBX <-> RDX (<- 0)
         xchg rdx, [r8]                      ; RDX <-> rest[res_beg] (<- 0)
@@ -294,8 +297,8 @@ _TEXT   SEGMENT
         shrd rax, rdx, cl                   ; (RBX:)RDX:RAX >> CL
         shrd rdx, rbx, cl                   ;   top bits filled from RBX
     ;; split of "whole" part into 13 and 12 decimal digits
-        mov rbx, 1000000000000              ; RBX <- 1,000,000,000,000
-        div rbx                             ; RDX:RAX / RBX(=1e12) -> RAX, rest RDX
+        mov rbx, ?dec_split@@3_KA           ; RBX <- dec_split
+        div rbx                             ; RDX:RAX / RBX -> RAX, rest RDX
         mov ?hi_dec@@3_KA, rax              ; hi_dec <- RAX
         mov ?lo_dec@@3_KA, rdx              ; lo_dec <- RDX
     ;; clean (already) used top bits from rest[res_beg]

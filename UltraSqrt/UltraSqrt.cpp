@@ -16,6 +16,7 @@ typedef unsigned long long ulonlong;
 #define fTime "%5u.%02u"
 #define pTime(time) time/1000, time%1000/10
 
+#define OUTPUT_WRAP 100
 #define fDec "%0*llu%0*llu"
 
 #define fPerc "%3llu.%02llu %%"
@@ -194,18 +195,18 @@ int main(int argc, char* argv[])
 
     // print the result
     printf(uLL ".\n", deci[0]);
-    const ulonlong OUTPUT_SIZE = 100;
-    char line[OUTPUT_SIZE + DECDIG];
+    const ulonlong WRAP = OUTPUT_WRAP;
+    char line[WRAP + DECDIG];
     ulonlong pos = 0;
     int size1 = (int) ((DECDIG+1)/2), size2 = (int) (DECDIG/2);
     for (i = 0; i < dec_len; ++i) {
-        sprintf_s(line + pos, DECDIG + 1, fDec, size1, deci[2*i+1], size2, deci[2*i+2]);
+        sprintf_s(line + (pos), DECDIG + 1, fDec, size1, deci[2*i+1], size2, deci[2*i+2]);
         pos += DECDIG;
-        if (pos >= OUTPUT_SIZE) {
-            pos -= OUTPUT_SIZE;
-            char oc = line[OUTPUT_SIZE]; line[OUTPUT_SIZE] = 0;
+        if (pos >= WRAP) {
+            pos -= WRAP;
+            char oc = line[WRAP]; line[WRAP] = 0;
             printf("%s\n", line);
-            line[0] = oc; for (j = 1; j <= pos; ++j) line[j] = line[OUTPUT_SIZE+j];
+            line[0] = oc; for (j = 1; j <= pos; ++j) line[j] = line[WRAP+j];
         }
     }
     if (pos > 0) {

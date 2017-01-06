@@ -297,17 +297,17 @@ _TEXT   SEGMENT
         shrd rsi, rax, cl                   ; RSI <- store bottom CL bits of RAX
         shrd rax, rdx, cl                   ; (RBX:)RDX:RAX >> CL
         shrd rdx, rbx, cl                   ;   top bits filled from RBX
-    ;; split of "whole" part into 13 and 12 decimal digits
+    ;; split of the "integer" part into hi_dec:mi_dec:lo_dec DWORDs
         mov rbx, ?dec_split@@3_KA           ; RBX <- dec_split
-        mov rdi, rax                        ; RDX:RAX / RBX
-        mov rax, rdx                        ;  -> RDI:RAX, rest RDX
-        xor rdx, rdx                        ; done in two steps 
-        div rbx                             ; 1. RDX / RBX -> RDI, rest RDX
-        xchg rax, rdi                       ; 2. rest RDX:RAX / RBX
-        div rbx                             ;    -> RAX, final rest RDX
-        mov ?lo_dec@@3KA, edx               ; lo_dec <- EDX (32 bits only)
-        xchg rdx, rdi                       ; RDI:RAX / RBX
-        div rbx                             ;  -> RAX, rest RDX
+        mov rdi, rax                        ; Split bin RDX:RAX -> dec EAX:EDX:EDI
+        mov rax, rdx                        ; 1st DIV+XCHG: RDI <- orig RDX / RBX
+        xor rdx, rdx                        ; 1st DIV+XCHG: RDX <- orig RDX % RBX
+        div rbx                             ; 1st DIV+XCHG: RAX <- orig RAX
+        xchg rax, rdi                       ; 2nd DIV+XCHG: RDX:RAX <- orig RDX:RAX / RBX
+        div rbx                             ; 2nd DIV+XCHG: (EDI) RDI <- orig RDX:RAX % RBX
+        xchg rdx, rdi                       ; 3rd DIV     : (EDX) RDX <- orig RDX:RAX / RBX % RBX
+        div rbx                             ; 3rd DIV     : (EAX) RAX <- orig RDX:RAX / RBX / RBX
+        mov ?lo_dec@@3KA, edi               ; lo_dec <- EDI (32 bits only)
         mov ?mi_dec@@3KA, edx               ; mi_dec <- EDX (32 bits only)
         mov ?hi_dec@@3KA, eax               ; hi_dec <- EAX (32 bits only)
     ;; clean (already) used top bits from rest[res_beg]

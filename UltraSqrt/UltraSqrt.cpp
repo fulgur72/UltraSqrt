@@ -1,29 +1,53 @@
 // UltraSqrt.cpp
+
+// includes
 #include <stdlib.h>
 #include <stdio.h>
 #include <malloc.h>
-
 #include <Windows.h>
 
+// typedefs
 typedef unsigned long ulong;
 typedef unsigned long long ulonlong;
 typedef unsigned long udeclong;
 
+// output limit (=max number of fraction decadic digits)
+#define OUTPUT_LIMIT 10000000
+
+// printf and scanf formats
 #define uL  "%lu"
 #define uLL "%llu"
 #define u8LL "%8llu"
 #define u016LLX "0x%016llX"
 
+// time output
 #define fTime "%5u.%02u"
-#define pTime(time) time/1000, time%1000/10
+#define pTime(time) \
+        time / 1000, time / 10 % 100
 
-#define OUTPUT_WRAP 100
+// decimal digit GROUPs, binary bits of WORDs
+#define DECDIG  27
+#define BYTES   sizeof(ulonlong)
+#define BINBITS 8 * BYTES
+
+// lg2(10) <= LG10_NUM/LG10_DEN
+#define LG10_NUM 28738
+#define LG10_DEN  8651
+
+// decimal output
 #define UDECLDIG 9
 #define iDec "%lu."
 #define fDec "%0*lu%0*lu%0*lu"
+#define pDec(hi, mi, lo) \
+        DECDIG-2*UDECLDIG, hi, UDECLDIG, mi, UDECLDIG, lo
 
+// line wrapping of the decimal output
+#define OUTPUT_WRAP 100
+
+// percentage printing "  0.00 %" - "100.00 %"
 #define fPerc "%3llu.%02llu %%"
-#define pPerc(part,total) 100*part/total, 10000*part/total%100
+#define pPerc(part, total) \
+        100 * part / total, 10000 * part / total % 100
 
 // Data used in processing
 
@@ -50,41 +74,40 @@ int sqrt_b2dec_next();
 int main(int argc, char* argv[])
 {
     // arguments
-    const ulong MAX_LEN = 10000000;
+    const ulong MAX_DIGITS = OUTPUT_LIMIT;
     ulong arg_num, arg_len;
 
     // scan and check cmd line arguments
     bool isOk = true;
     if(isOk) isOk = (argc == 3);
     if(isOk) isOk = (sscanf_s(argv[1], uL, &arg_num) == 1 && arg_num != 0);
-    if(isOk) isOk = (sscanf_s(argv[2], uL, &arg_len) == 1 && arg_len <= MAX_LEN);
+    if(isOk) isOk = (sscanf_s(argv[2], uL, &arg_len) == 1 && arg_len <= MAX_DIGITS);
     if(isOk) {
         // print input 'arg_num' value
         printf("sqrt(" uL ")\n", arg_num);
     } else {
-        printf("Use: %s <number> <length>, where <length> <= " uL "\n", argv[0], MAX_LEN);
+        printf("Use: %s <number> <length>, where <length> <= " uL "\n", argv[0], MAX_DIGITS);
         return 1;
     }
 
-    // c++ iterators
+    // iterators
     ulonlong i, j;
 
-    // How many QWORDs of 64 bit each is needed to carry binary data
+    // How many WORDs of BINBITS each is needed to carry binary data
     // corresponding to required groups of DECDIG decimal digits
-    // QWORDS/DECGROUPS must be slightly more than DECDIG*ln(10)/64*ln(2)
-    const ulonlong DECDIG = 27;
-    const ulonlong QWORDS = 125489, DECGROUPS = 89543;
-    ulonlong dec_len = ((ulonlong)arg_len + (DECDIG-1)) / DECDIG;
-    ulonlong len = (QWORDS * dec_len + (DECGROUPS-1)) / DECGROUPS;
+    // WORDS/DECGROUPS must be slightly more than DECDIG*lg2(10)/BINBITS
+    const ulonlong WORDS = DECDIG * LG10_NUM, DECGROUPS = LG10_DEN * BINBITS;
+    const ulonlong dec_len = (ulonlong) (arg_len + DECDIG-1) / DECDIG;
+    const ulonlong len = (WORDS * dec_len + DECGROUPS-1) / DECGROUPS;
     printf("* decadic  figures: " u8LL "\n", DECDIG * dec_len);
-    printf("* binary data size: " u8LL "\n", sizeof(ulonlong) * len);
+    printf("* binary data size: " u8LL "\n", BYTES  * len);
 
     // start time
     DWORD start_time = GetTickCount();
 
     // memory allocation for binary calculations
-    ulonlong* binar = (ulonlong*) malloc((len + 4) * sizeof(ulonlong));
-    memset(binar, 0, (len + 4) * sizeof(ulonlong));
+    ulonlong* binar = (ulonlong*) malloc((len + 4) * BYTES);
+    memset(binar, 0, (len + 4) * BYTES);
 
     // initiation of 'base' and 'rest'
     ulonlong* base = bas_beg = bas_end = binar + (2);
@@ -155,7 +178,7 @@ int main(int argc, char* argv[])
     ulonlong b2dec_str = res_end - res_beg + 1;
     for (i = 0; i < dec_len; ++i) {
         // restriction of the "remaining" binary result to only relevalt QWORDs
-        res_mid = res_beg + len + 1 - (QWORDS * i) / DECGROUPS;
+        res_mid = res_beg + len + 1 - (WORDS * i) / DECGROUPS;
         // multiplication and shift
         sqrt_b2dec_next();
         // storing of the decimal output
@@ -200,10 +223,8 @@ int main(int argc, char* argv[])
     const ulonlong WRAP = OUTPUT_WRAP;
     char line[WRAP + DECDIG];
     ulonlong pos = 0;
-    int hi_size = (int) DECDIG - 2 * UDECLDIG;
     for (i = 0; i < dec_len; ++i) {
-        sprintf_s(line + (pos), DECDIG + 1, fDec,
-            hi_size, deci[3*i+1], UDECLDIG, deci[3*i+2], UDECLDIG, deci[3*i+3]);
+        sprintf_s(line + (pos), DECDIG + 1, fDec, pDec(deci[3*i+1], deci[3*i+2], deci[3*i+3]));
         pos += DECDIG;
         if (pos >= WRAP) {
             pos -= WRAP;

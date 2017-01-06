@@ -3,7 +3,7 @@
 <Version major="15" minor="1"/>
 <Label-Scheme value="2" prefix=""/>
 <View-Properties presentation="false"></View-Properties>
-<MapleNet-Properties elisiondigitsbefore="100" labelling="true" indentamount="4" elisiontermsthreshold="10000" ansi="false" errorbreak="1" useclientjvm="true" echo="1" imaginaryunit="I" labelwidth="20" contextmenusize="automatic" plotdriver="opengl" elisiondigitsafter="100" plotoutput="terminal" helpbrowser="standard" rtablesize="10" elisiontermsbefore="100" elisiondigitsthreshold="10000" typesetting="standard" plotdevice="inline" verboseproc="1" showassumed="1" errorcursor="false" longdelim="true" plotoptions="" quiet="false" elisiontermsafter="100" screenwidth="79" preplot="" prettyprint="0" displayprecision="-1" screenpixelheight="1200" warnlevel="3" screenheight="25" latexwidth="6.0" postplot="" prompt="&gt; " ShowLabels="true"/>
+<MapleNet-Properties elisiondigitsbefore="100" labelling="true" indentamount="4" elisiontermsthreshold="10000" ansi="false" errorbreak="1" useclientjvm="true" echo="1" imaginaryunit="I" labelwidth="20" contextmenusize="automatic" plotdriver="opengl" elisiondigitsafter="100" plotoutput="terminal" helpbrowser="standard" rtablesize="10" elisiontermsbefore="100" elisiondigitsthreshold="10000" typesetting="standard" plotdevice="inline" verboseproc="1" showassumed="1" errorcursor="false" longdelim="true" plotoptions="" quiet="false" elisiontermsafter="100" screenwidth="79" preplot="" prettyprint="3" displayprecision="-1" screenpixelheight="1200" warnlevel="3" screenheight="25" latexwidth="6.0" postplot="" prompt="&gt; " ShowLabels="true"/>
 <Styles><Font name="Annotation Text" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Ordered List 1" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Ordered List 2" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
@@ -65,8 +65,8 @@
 <Font name="Error" background="[255,255,255]" bold="false" executable="false" family="Monospaced" foreground="[255,0,255]" italic="false" opaque="false" readonly="true" size="10" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Heading 1" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="18" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Text" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
-<Font name="Help Bold" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Help Notes" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
+<Font name="Help Bold" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Equation Label" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Heading 4" background="[255,255,255]" bold="true" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="true" opaque="false" readonly="false" size="10" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="LaTeX" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
@@ -135,91 +135,56 @@
 strfrac := proc(x, e_sgn, e_max)
 global p, q;
 local y, p0, q0, p1, q1, k, l;
-y := evalf(x);
-p1 := 1; q1 := 0;
+<Font encoding="UTF-8">y := evalf(x);
+printf(&quot; %a =~=\134n\134n&quot;, y);
+</Font>p1 := 1; q1 := 0;
 k := trunc(y);
 p := k; q := 1; l :=y;
-print(k, p/q, p/q-y);
-while signum(p/q-y)*e_sgn &lt; 0 or abs(p/q-y) &gt; abs(e_max) do
+<Font encoding="UTF-8">printf(&quot;  %4d, %d/%d, %f\134n&quot;, k, p,q, p/q-y);
+</Font>while signum(p/q-y)*e_sgn &lt; 0 or abs(p/q-y) &gt; abs(e_max) do
   l := 1/(l-k); k := trunc(l);
   p0 := p1; p1 := p;
   q0 := q1; q1 := q;
   p := k * p1 + p0;
   q := k * q1 + q0;
-  print(k, p/q, p/q-y);
-od;
+  <Font encoding="UTF-8">printf(&quot;  %4d, %d/%d, %a\134n&quot;, k, p,q, p/q-y);
+</Font>od;
 end:
 </Text-field>
 </Input>
 </Group>
-<Group labelreference="L9" drawlabel="true">
-<Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Decimal group size
-<Font encoding="UTF-8">printf(&quot;Decimal group size and binary WORD size:\134n&quot;);
-</Font>dec_gr := 27;
-bwd_sz := 64;
-</Text-field>
-</Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">Decimal group size and binary WORD size:</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">dec_gr := 27
-bwd_sz := 64</Text-field>
-</Output>
-</Group>
 <Group labelreference="L3" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Number of binary WORDs needed to carry group of decimal digits
-strfrac(dec_gr*ln(10)/bwd_sz/ln(2), 1, 1e-10);
+strfrac(log[2](10), 1, 1e-8);
 <Font encoding="UTF-8">printf(&quot;\134n&quot;);</Font>
 <Font encoding="UTF-8">printf(&quot;==&gt; It is enough to use\134n&quot;);
-printf(&quot;    %d WORDs (%d bit) to carry %d (x %d) decimal digits\134n&quot;, p, </Font>bwd_sz, q, dec_gr);
+printf(&quot;    %d bits to carry %d decimal digits\134n&quot;, p, </Font>q);
 printf<Font encoding="UTF-8">(&quot;      %10d = 0x%08X\134n&quot;, p</Font>, p);
 printf<Font encoding="UTF-8">(&quot;      %10d = 0x%08X\134n&quot;, q, q);
 printf(&quot;\134n&quot;);
 </Font></Text-field>
 </Input>
 <Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">1, 1, -.40143841503060599050779100931</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">2, 3/2, 0.9856158496939400949220899069e-1
-2, 7/5, -0.143841503060599050779100931e-2
-27, 192/137, 0.2143898399254963819439215e-4
-2, 391/279, -0.472327433358907409925304e-5
-2, 974/695, 0.43389025731884472697630e-6
-4, 4287/3059, -0.3647552262993243958728e-7
-2, 9548/6813, 0.1150689584421993539609e-7
-1, 13835/9872, -0.336123808126954141450e-8
-2, 37218/26557, 0.45307062959237090657e-9
-2, 88271/62986, -0.14475834182395650640e-9
-1, 125489/89543, 0.3254802488146331543e-10
+<Text-field style="Line Printed Output" layout="Line Printed Output"> 3.32192809488736234787031942948 =~=</Text-field>
+<Text-field style="Line Printed Output" layout="Line Printed Output">
+     3, 3/1, -0.321928
+     3, 10/3, .1140523844597098546301390385e-1
+     9, 93/28, -.49952345879091929889085805e-3
+     2, 196/59, .10580341772239789239243493e-3
+     2, 485/146, -.1028666818426567853860756e-4
+     4, 2136/643, .36545478384186529487845e-6
+     6, 13301/4004, -.2295929041979839135755e-7
+     2, 28738/8651, .591023330581133587049e-8
 
 ==&gt; It is enough to use
-    125489 WORDs (64 bit) to carry 89543 (x 27) decimal digits
-          125489 = 0x0001EA31
-           89543 = 0x00015DC7
+    28738 bits to carry 8651 decimal digits
+           28738 = 0x00007042
+            8651 = 0x000021CB
 </Text-field>
 </Output>
 </Group>
 <Group labelreference="L4" drawlabel="true">
-<Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Binary to decimal multiplication
-<Font encoding="UTF-8">printf(&quot;==&gt; Group by group multiplication:\134n&quot;);
-printf(&quot;    dec_gr := %d dec digits (less or equal to [%d * ln(2)/ln(5)] = %d)\134n&quot;, dec_gr, bwd_sz, tru</Font>nc(bwd_sz*ln(2)/ln(5)));
-printf<Font encoding="UTF-8">(&quot;      x  2^%d = &lt;&lt; %d bits\134n&quot;, dec_gr, dec_gr);
-</Font>printf<Font encoding="UTF-8">(&quot;      x  5^%d = x %d = 0x%08X%08X (= %d bits)\134n&quot;, dec_gr, </Font>5^dec_gr, iquo(5^dec_gr, 2^32),irem(5^dec_gr, 2^32), 1+trunc(dec_gr*log[2](5)));
-printf<Font encoding="UTF-8">(&quot;      = 10^%d = next %d decadic digits\134n&quot;, dec_gr, dec_gr);
-printf(&quot;\134n&quot;);
-</Font></Text-field>
-</Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">==&gt; Group by group multiplication:</Text-field>
-<Text-field style="Line Printed Output" layout="Line Printed Output">    dec_gr := 27 dec digits (less or equal to [64 * ln(2)/ln(5)] = 27)
-      x  2^27 = &lt;&lt; 27 bits
-      x  5^27 = x 7450580596923828125 = 0x6765C793FA10079D (= 63 bits)
-      = 10^27 = next 27 decadic digits
-</Text-field>
-</Output>
-</Group>
-<Group labelreference="L10" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>

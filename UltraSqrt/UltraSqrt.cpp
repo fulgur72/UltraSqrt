@@ -7,6 +7,7 @@
 
 typedef unsigned long ulong;
 typedef unsigned long long ulonlong;
+typedef unsigned long udeclong;
 
 #define uL  "%lu"
 #define uLL "%llu"
@@ -17,7 +18,9 @@ typedef unsigned long long ulonlong;
 #define pTime(time) time/1000, time%1000/10
 
 #define OUTPUT_WRAP 100
-#define fDec "%0*llu%0*llu"
+#define UDECLDIG 9
+#define iDec "%lu."
+#define fDec "%0*lu%0*lu%0*lu"
 
 #define fPerc "%3llu.%02llu %%"
 #define pPerc(part,total) 100*part/total, 10000*part/total%100
@@ -33,7 +36,7 @@ ulonlong *bas_beg, *bas_end;
 ulonlong *res_beg, *res_mid, *res_end;
 
 // decimal output
-ulonlong hi_dec, lo_dec;
+udeclong hi_dec, mi_dec, lo_dec;
 ulonlong dec_size, dec_mul, dec_split;
 
 // assembler functions
@@ -137,12 +140,12 @@ int main(int argc, char* argv[])
     DWORD binar_time = GetTickCount();
 
     // allocate memory for decadic output
-    ulonlong* deci = (ulonlong*) malloc((2 * dec_len + 1) * sizeof(ulonlong));
+    udeclong* deci = (udeclong*) malloc((3 * dec_len + 1) * sizeof(udeclong));
 
     // binary to dec preparation
     dec_size = DECDIG;
     dec_mul = 1; for (i = 0; i < DECDIG; ++i) dec_mul *= 5;
-    dec_split = 1; for (i = 0; i < DECDIG/2; ++i) dec_split *= 10;
+    dec_split = 1; for (i = 0; i < UDECLDIG; ++i) dec_split *= 10;
 
     // binary to decimal "init"
     sqrt_b2dec_init();
@@ -156,8 +159,9 @@ int main(int argc, char* argv[])
         // multiplication and shift
         sqrt_b2dec_next();
         // storing of the decimal output
-        deci[2*i+1] = hi_dec;
-        deci[2*i+2] = lo_dec;
+        deci[3*i+1] = hi_dec;
+        deci[3*i+2] = mi_dec;
+        deci[3*i+3] = lo_dec;
     }
     ulonlong b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
 
@@ -192,13 +196,14 @@ int main(int argc, char* argv[])
     printf("\n");
 
     // print the result
-    printf(uLL ".\n", deci[0]);
+    printf(iDec "\n", deci[0]);
     const ulonlong WRAP = OUTPUT_WRAP;
     char line[WRAP + DECDIG];
     ulonlong pos = 0;
-    int size1 = (int) ((DECDIG+1)/2), size2 = (int) (DECDIG/2);
+    int hi_size = (int) DECDIG - 2 * UDECLDIG;
     for (i = 0; i < dec_len; ++i) {
-        sprintf_s(line + (pos), DECDIG + 1, fDec, size1, deci[2*i+1], size2, deci[2*i+2]);
+        sprintf_s(line + (pos), DECDIG + 1, fDec,
+            hi_size, deci[3*i+1], UDECLDIG, deci[3*i+2], UDECLDIG, deci[3*i+3]);
         pos += DECDIG;
         if (pos >= WRAP) {
             pos -= WRAP;

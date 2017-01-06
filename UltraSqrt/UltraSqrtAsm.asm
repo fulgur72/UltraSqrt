@@ -23,8 +23,9 @@ EXTRN    ?res_end@@3PEA_KEA :QWORD          ; res_end
 EXTRN    ?lead@@3_KA        :QWORD          ; lead
 EXTRN    ?next@@3_KA        :QWORD          ; next
 EXTRN    ?shift@@3_KA       :QWORD          ; shift
-EXTRN    ?hi_dec@@3_KA      :QWORD          ; hi_dec
-EXTRN    ?lo_dec@@3_KA      :QWORD          ; lo_dec
+EXTRN    ?hi_dec@@3KA       :DWORD          ; hi_dec
+EXTRN    ?mi_dec@@3KA       :DWORD          ; mi_dec
+EXTRN    ?lo_dec@@3KA       :DWORD          ; lo_dec
 EXTRN    ?dec_size@@3_KA    :QWORD          ; dec_size
 EXTRN    ?dec_mul@@3_KA     :QWORD          ; dec_mul
 EXTRN    ?dec_split@@3_KA   :QWORD          ; dec_split
@@ -221,7 +222,7 @@ _TEXT   SEGMENT
         mov rcx, ?shift@@3_KA               ; RCX <- shift
         shrd rsi, rax, cl                   ; RSI <- store bottom CL bits of RAX
         shr rax, cl                         ; RAX >> CL
-        mov ?hi_dec@@3_KA, rax              ; hi_dec <- RAX
+        mov ?hi_dec@@3KA, eax               ; hi_dec <- EAX (32 bits only)
     ;; clean (already) used top bits from rest[res_beg]
         xor rax, rax                        ; RAX <- 0
         shld rax, rsi, cl                   ; RAX <- restore bottom CL bits from RSI
@@ -298,9 +299,17 @@ _TEXT   SEGMENT
         shrd rdx, rbx, cl                   ;   top bits filled from RBX
     ;; split of "whole" part into 13 and 12 decimal digits
         mov rbx, ?dec_split@@3_KA           ; RBX <- dec_split
-        div rbx                             ; RDX:RAX / RBX -> RAX, rest RDX
-        mov ?hi_dec@@3_KA, rax              ; hi_dec <- RAX
-        mov ?lo_dec@@3_KA, rdx              ; lo_dec <- RDX
+        mov rdi, rax                        ; RDX:RAX / RBX
+        mov rax, rdx                        ;  -> RDI:RAX, rest RDX
+        xor rdx, rdx                        ; done in two steps 
+        div rbx                             ; 1. RDX / RBX -> RDI, rest RDX
+        xchg rax, rdi                       ; 2. rest RDX:RAX / RBX
+        div rbx                             ;    -> RAX, final rest RDX
+        mov ?lo_dec@@3KA, edx               ; lo_dec <- EDX (32 bits only)
+        xchg rdx, rdi                       ; RDI:RAX / RBX
+        div rbx                             ;  -> RAX, rest RDX
+        mov ?mi_dec@@3KA, edx               ; mi_dec <- EDX (32 bits only)
+        mov ?hi_dec@@3KA, eax               ; hi_dec <- EAX (32 bits only)
     ;; clean (already) used top bits from rest[res_beg]
         xor rax, rax                        ; RAX <- 0
         shld rax, rsi, cl                   ; RAX <- restore bottom CL bits from RSI

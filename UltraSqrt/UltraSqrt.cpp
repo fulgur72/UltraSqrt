@@ -79,15 +79,13 @@ int main(int argc, char* argv[])
     // start time
     DWORD start_time = GetTickCount();
 
-    // memory allocation and initiation of 'rest'
-    ulonlong* rest = (ulonlong*) malloc((len + 4) * sizeof(ulonlong));
-    rest[0] = rest[1] = 0;
-    res_beg = res_end = rest;
+    // memory allocation for binary calculations
+    ulonlong* binar = (ulonlong*) malloc((len + 4) * sizeof(ulonlong));
+    memset(binar, 0, (len + 4) * sizeof(ulonlong));
 
-    // initiation of 'base' (sharing memory with 'rest')
-    ulonlong* base = rest + (2);
-    for (i = 0; i <= len+1; ++i) base[i] = 0;
-    bas_beg = bas_end = base;
+    // initiation of 'base' and 'rest'
+    ulonlong* base = bas_beg = bas_end = binar + (2);
+    ulonlong* rest = res_beg = res_end = binar;
 
     // calculate first QWORD of partial result
     num = (ulonlong) arg_num;
@@ -164,7 +162,7 @@ int main(int argc, char* argv[])
     ulonlong b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
 
     // release memory with binary result
-    free(rest);
+    free(binar);
 
     // b2dec calculation time
     DWORD b2dec_time = GetTickCount();

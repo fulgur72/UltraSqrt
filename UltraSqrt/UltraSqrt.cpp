@@ -47,7 +47,7 @@ typedef unsigned long udeclong;
 // percentage printing "  0.00 %" - "100.00 %"
 #define fPerc "%3llu.%02llu %%"
 #define pPerc(part, total) \
-        100 * part / total, 10000 * part / total % 100
+        total ? 100*part/total : 0, total ? 10000*part/total%100 : 0
 
 // Data used in processing
 

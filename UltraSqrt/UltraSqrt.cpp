@@ -15,20 +15,21 @@ typedef unsigned long udeclong;
 #define OUTPUT_LIMIT 10000000
 
 // printf and scanf formats
-#define uL  "%lu"
-#define uLL "%llu"
-#define u8LL "%8llu"
+#define uL      "%lu"
+#define uLL     "%llu"
+#define u8LL    "%8llu"
 #define u016LLX "0x%016llX"
 
 // time output
-#define fTime "%5u.%02u"
+#define fTime "%5u.%02u second(s)"
 #define pTime(time) \
         time / 1000, time / 10 % 100
 
 // decimal digit GROUPs, binary bits of WORDs
 #define DECDIG  27
 #define BYTES   sizeof(ulonlong)
-#define BINBITS 8 * BYTES
+#define BINBITS 8*BYTES
+#define XWORD   "0hf_D_T_Q"[BYTES]
 
 // lg2(10) <= LG10_NUM/LG10_DEN
 #define LG10_NUM 28738
@@ -45,7 +46,7 @@ typedef unsigned long udeclong;
 #define OUTPUT_WRAP 100
 
 // percentage printing "  0.00 %" - "100.00 %"
-#define fPerc "%3llu.%02llu %%"
+#define fPerc "%3llu.%02llu%%"
 #define pPerc(part, total) \
         total ? 100*part/total : 0, total ? 10000*part/total%100 : 0
 
@@ -84,9 +85,9 @@ int main(int argc, char* argv[])
     if(isOk) isOk = (sscanf_s(argv[2], uL, &arg_len) == 1 && arg_len <= MAX_DIGITS);
     if(isOk) {
         // print input 'arg_num' value
-        printf("sqrt(" uL ")\n", arg_num);
+        printf("sqrt(" uL ")\n\n", arg_num);
     } else {
-        printf("Use: %s <number> <length>, where <length> <= " uL "\n", argv[0], MAX_DIGITS);
+        printf("Use: %s <number> <length>, where <length> <= " uL "\n\n", argv[0], MAX_DIGITS);
         return 1;
     }
 
@@ -99,8 +100,9 @@ int main(int argc, char* argv[])
     const ulonlong WORDS = DECDIG * LG10_NUM, DECGROUPS = LG10_DEN * BINBITS;
     const ulonlong dec_len = (ulonlong) (arg_len + DECDIG-1) / DECDIG;
     const ulonlong len = (WORDS * dec_len + DECGROUPS-1) / DECGROUPS;
-    printf("* decadic  figures: " u8LL "\n", DECDIG * dec_len);
-    printf("* binary data size: " u8LL "\n", BYTES  * len);
+    printf("* dec  fract part : " u8LL " figure(s)\n", DECDIG * dec_len);
+    printf("* bin  fract size : " u8LL " %c-WORD(s)\n", len, XWORD);
+	printf("\n");
 
     // start time
     DWORD start_time = GetTickCount();
@@ -205,17 +207,19 @@ int main(int argc, char* argv[])
     printf("\n");
 
     // print statistics
-    printf("* binary lead: " u016LLX "\n", lead_stat);
-    printf("* binary next: " u016LLX "\n", next_stat);
-    printf("* binary shift   <<  " uLL " bits\n", shift_stat);
-    for (i = 0; i <= MAX_ADAPT; ++i) {
+    printf("* binary lead word: " u016LLX "\n", lead_stat);
+    printf("* binary next word: " u016LLX "\n", next_stat);
+    printf("* binary res shift: <<    " uLL " bits\n", shift_stat);
+	printf("\n");
+	for (i = 0; i <= MAX_ADAPT; ++i) {
         ulonlong adapt = adapt_stat[i];
-        printf("* + bin adapt  " uLL "x : " u8LL " ~ " fPerc "\n", i, adapt, pPerc(adapt, len));
+        printf("* next adapted +" uLL " : " u8LL " x " fPerc "\n", i, adapt, pPerc(adapt, len));
     }
-    printf("* bin calc cycles : " u8LL "\n", len);
-    printf("* bi2dec start ## : " u8LL "\n", b2dec_str);
-    printf("* bi2dec final ## : " u8LL "\n", b2dec_end);
-    printf("* dec calc cycles : " u8LL "\n", dec_len);
+	printf("* bin calc cycles : " u8LL " # iter(s)\n", len);
+	printf("\n");
+	printf("* bi2dec start sz : " u8LL " %c-WORD(s)\n", b2dec_str, XWORD);
+	printf("* bi2dec final sz : " u8LL " %c-WORD(s)\n", b2dec_end, XWORD);
+	printf("* dec calc cycles : " u8LL " # iter(s)\n", dec_len);
     printf("\n");
 
     // print the result
@@ -236,6 +240,7 @@ int main(int argc, char* argv[])
     if (pos > 0) {
         printf("%s\n", line);
     }
+	printf("\n");
 
     // release memory for decadic output
     free(deci);

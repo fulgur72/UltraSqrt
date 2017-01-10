@@ -23,7 +23,7 @@ ultrasqrt_1b1 () {
     file="${d}/sqrt_${i}_${p}.txt"
     echo "  ==> $file"
     $ultra_bin $i $l >"$file"
-    head -n 7 "$file"
+    head -n 9 "$file"
   done
   en=$(date "+%s")
   echo "Total time: $(( en-st )) sec"
@@ -72,7 +72,7 @@ ultrasqrt_par () {
     echo "*** $i ***"
     file="${d}/sqrt_${i}_${p}.txt"
     echo "  <== $file"
-    head -n 7 "$file"
+    head -n 9 "$file"
   done
   echo "Total time: $(( en-st )) sec"
   echo
@@ -83,7 +83,7 @@ ultrasqrt_cmp () {
   local i; local l; local d; local p; local d2; local p2;
   local file; local file2;
   local h;
-  local gsrc="/^sqrt/ || /^\* decadic/ || /^\* total/ || /^\* \+/ { print; next } /^[0-9]/ { if (num>=0) print; --num }"
+  local gsrc="/^sqrt/ || /^\* decadic/ || /^\* total/ || /^\* next/ { print; next } /^[0-9]/ { if (num>=0) print; --num }"
   l=6000000
   d=6e6;  p=6e6
   d2=Ae6; p2=Ae6

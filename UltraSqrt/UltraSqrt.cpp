@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
     deci[0] = hi_dec;
 
     // binary to decimal "next" digits
-    ulonlong b2dec_str = res_end - res_beg + 1;
+    ulonlong b2dec_str = res_end - res_beg;
     for (i = 0; i < dec_len; ++i) {
         // restriction of the "remaining" binary result to only relevalt QWORDs
         res_mid = res_beg + len + 1 - (WORDS * i) / DECGROUPS;
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
         deci[3*i+2] = mi_dec;
         deci[3*i+3] = lo_dec;
     }
-    ulonlong b2dec_end = (res_end >= res_beg ? res_end - res_beg + 1 : 0);
+    ulonlong b2dec_end = (res_end >= res_beg ? res_end - res_beg : 0);
 
     // release memory with binary result
     free(binar);

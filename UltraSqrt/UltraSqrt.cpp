@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
     }
 
     // iterators
-    ulonlong i, j;
+    ulonlong i, j, k;
 
     // How many WORDs of BINBITS each is needed to carry binary data
     // corresponding to required groups of DECDIG decimal digits
@@ -178,9 +178,13 @@ int main(int argc, char* argv[])
 
     // binary to decimal "next" digits
     ulonlong b2dec_str = res_end - res_beg;
+	j = len + 1;
+	k = 0;
     for (i = 0; i < dec_len; ++i) {
         // restriction of the "remaining" binary result to only relevalt QWORDs
-        res_mid = res_beg + len + 1 - (WORDS * i) / DECGROUPS;
+		if (k >= DECGROUPS) { k -= DECGROUPS; --j; }
+		res_mid = res_beg + (j);
+		k += WORDS; k-= DECGROUPS; --j;
         // multiplication and shift
         sqrt_b2dec_next();
         // storing of the decimal output

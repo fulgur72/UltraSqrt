@@ -31,8 +31,9 @@ typedef unsigned long udeclong;
 #define BINBITS 8*BYTES
 #define XWORD   "0hf_D_T_Q"[BYTES]
 
-// 1-st 2-nd 3-rd 4..-th
-#define TH(num) "th\0st\0nd\0rd\0th\0th\0th\0th\0th\0th\0" + (3*(num%10))
+// 0-th 1-st 2-nd 3-rd
+#define TH(num) \
+        "_0th\0_1st\0_2nd\0_3rd"+(5*(num%10<4?num%10:0)+2)
 
 // lg2(10) <= LG10_NUM/LG10_DEN
 #define LG10_NUM 28738

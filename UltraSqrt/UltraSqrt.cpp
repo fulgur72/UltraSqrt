@@ -31,6 +31,9 @@ typedef unsigned long udeclong;
 #define BINBITS 8*BYTES
 #define XWORD   "0hf_D_T_Q"[BYTES]
 
+// 1-st 2-nd 3-rd 4..-th
+#define TH(num) "th\0st\0nd\0rd\0th\0th\0th\0th\0th\0th\0" + (3*(num%10))
+
 // lg2(10) <= LG10_NUM/LG10_DEN
 #define LG10_NUM 28738
 #define LG10_DEN  8651
@@ -125,6 +128,7 @@ int main(int argc, char* argv[])
     for (i = 0; i <= MAX_ADAPT; ++i) adapt_stat[i] = 0;
 
     // cycle for next QWORD of the result
+    bool base_error = false;
     for (i = 1; i <= len; ++i) {
 
         // update 'base' and 'rest' pointers
@@ -154,12 +158,19 @@ int main(int argc, char* argv[])
         if (next != 0) {
             sqrt_subtr_next();
         }
+
+        // check if *bas_beg is zero
+        base_error |= (*bas_beg != 0);
     }
 
     // remember lead, next and shift statistics
     ulonlong lead_stat = rest[0];
     ulonlong next_stat = rest[1];
     ulonlong shift_stat = shift;
+
+    // base remainder
+    ulonlong base_rem_pos = base[len] ? len : 0;
+    ulonlong base_rem_val = base[len];
 
     // binary calculation time
     DWORD binar_time = GetTickCount();
@@ -182,6 +193,7 @@ int main(int argc, char* argv[])
 	k = 0;
     for (i = 0; i < dec_len; ++i) {
         // restriction of the "remaining" binary result to only relevalt QWORDs
+        // j = len + 1 - WORDS * i / DECGROUPS;
 		if (k >= DECGROUPS) { k -= DECGROUPS; --j; }
 		res_mid = res_beg + (j);
 		k += WORDS; k-= DECGROUPS; --j;
@@ -221,7 +233,14 @@ int main(int argc, char* argv[])
     }
 	printf("* bin calc cycles : " u8LL " # iter(s)\n", len);
 	printf("\n");
-	printf("* bi2dec start sz : " u8LL " %c-WORD(s)\n", b2dec_str, XWORD);
+    if (base_error) {
+        printf("* binary remainder: !!! ERROR !!!\n");
+    } else {
+        printf("* binary rem t-pos: " u8LL " %s %c-WORD\n", base_rem_pos, TH(base_rem_pos), XWORD);
+        printf("* binary rem t-val: " u016LLX "\n", base_rem_val);
+    }
+    printf("\n");
+    printf("* bi2dec start sz : " u8LL " %c-WORD(s)\n", b2dec_str, XWORD);
 	printf("* bi2dec final sz : " u8LL " %c-WORD(s)\n", b2dec_end, XWORD);
 	printf("* dec calc cycles : " u8LL " # iter(s)\n", dec_len);
     printf("\n");

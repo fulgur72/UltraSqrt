@@ -299,15 +299,10 @@ _TEXT   SEGMENT
         shrd rdx, rbx, cl                   ;   top bits filled from RBX
     ;; split of the "integer" part into hi_dec:mi_dec:lo_dec DWORDs
         mov rbx, ?dec_split@@3_KA           ; RBX <- dec_split
-        mov rdi, rax                        ; Split bin RDX:RAX -> dec EAX:EDX:EDI
-        mov rax, rdx                        ; 1st DIV+XCHG: RDI <- orig RDX / RBX
-        xor rdx, rdx                        ; 1st DIV+XCHG: RDX <- orig RDX % RBX
-        div rbx                             ; 1st DIV+XCHG: RAX <- orig RAX
-        xchg rax, rdi                       ; 2nd DIV+XCHG: RDX:RAX <- orig RDX:RAX / RBX
-        div rbx                             ; 2nd DIV+XCHG: (EDI) RDI <- orig RDX:RAX % RBX
-        xchg rdx, rdi                       ; 3rd DIV     : (EDX) RDX <- orig RDX:RAX / RBX % RBX
-        div rbx                             ; 3rd DIV     : (EAX) RAX <- orig RDX:RAX / RBX / RBX
-        mov ?lo_dec@@3KA, edi               ; lo_dec <- EDI (32 bits only)
+        div rbx                             ; 1st div -> lo_dec
+        mov ?lo_dec@@3KA, edx               ; lo_dec <- EDX (32 bits only)
+        xor rdx, rdx                        ; RDX <- 0
+        div rbx                             ; 2nd div -> hi_dec, mi_dec 
         mov ?mi_dec@@3KA, edx               ; mi_dec <- EDX (32 bits only)
         mov ?hi_dec@@3KA, eax               ; hi_dec <- EAX (32 bits only)
     ;; clean (already) used top bits from rest[res_beg]

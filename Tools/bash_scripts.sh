@@ -82,15 +82,16 @@ ultrasqrt_par () {
 ultrasqrt_cmp () {
   local i; local l; local d; local p; local d2; local p2;
   local file; local file2;
-  local h;
-  local gsrc="/^sqrt/ || /^\* decadic/ || /^\* total/ || /^\* next/ { print; next } /^[0-9]/ { if (num>=0) print; --num }"
+  local nrnd=27; local nfrc;
+  local gsrc='/^sqrt/ || /^\* decadic/ || /^\* total/ || /^\* next/ || /^[1-9][0-9]*\./ { print; next }
+              /^[0-9]/ { if (num>=length($0)) { print; num-=length($0) } else if (num>0) { print substr($0,1,num); num=0 } }'
   l=6000000
   d=6e6;  p=6e6
   d2=Ae6; p2=Ae6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
   echo "num = $num"
   echo "l   = $l"
-  h=$((l/100))
+  nfrc=$((l+nrnd-1-(l-1)%nrnd))
   echo
   for i in $num; do
     echo "*** $i ***"
@@ -98,7 +99,7 @@ ultrasqrt_cmp () {
     echo "< $file <<"
     file2="${d2}/sqrt_${i}_${p2}.txt"
     echo "> $file2 >>"
-    diff <(gawk -v num=$h -- "$gsrc" "$file") <(gawk -v num=$h -- "$gsrc" "$file2")
+    diff <(gawk -v num=$nfrc -- "$gsrc" "$file") <(gawk -v num=$nfrc -- "$gsrc" "$file2")
     echo
   done
 }

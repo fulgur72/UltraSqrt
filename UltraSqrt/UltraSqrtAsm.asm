@@ -127,7 +127,7 @@ _TEXT   SEGMENT
 ;;***************************************************
 ?sqrt_check_next@@YAHXZ PROC                ; sqrt_check_next (==> next, adjust)
 
-    ;; reset adapt counter and read "next"
+    ;; read "next"
         mov rbx, ?next@@3_KA                ; RBX <- next
     ;; try next adaptation
     l_adjustnext:

@@ -19,7 +19,8 @@ ultrasqrt_1b1 () {
   mkdir -p "${d}"
   st=$(date "+%s")
   for i in $num; do
-    echo "*** $i ***"
+    dt=$(date "+%T")
+    echo "At $dt *** $i ***"
     file="${d}/sqrt_${i}_${p}.txt"
     echo "  ==> $file"
     $ultra_bin $i $l >"$file"
@@ -48,7 +49,8 @@ ultrasqrt_par () {
   mkdir -p "${d}"
   st=$(date "+%s")
   for i in $num; do
-    echo "*** $i ***"
+    dt=$(date "+%T")
+    echo "At $dt *** $i ***"
     file="${d}/sqrt_${i}_${p}.txt"
     echo "  ==> $file"
     $ultra_bin $i $l >"$file"&
@@ -57,7 +59,7 @@ ultrasqrt_par () {
       sleep $sl
       dt=$(date "+%T")
       u=$(ps -f | grep UltraSqrt | wc -l)
-      echo "$dt - running processes: $u"
+      echo "$dt - running processes: $u" >&2
     done
   done
   u=$u_max
@@ -65,11 +67,13 @@ ultrasqrt_par () {
     sleep $sl
     dt=$(date "+%T")
     u=$(ps -f | grep UltraSqrt | wc -l)
-    echo "$dt - running processes: $u"
+    echo "$dt - running processes: $u" >&2
   done
   en=$(date "+%s")
+  echo
   for i in $num; do
-    echo "*** $i ***"
+    dt=$(date "+%T")
+    echo "At $dt *** $i ***"
     file="${d}/sqrt_${i}_${p}.txt"
     echo "  <== $file"
     head -n 9 "$file"

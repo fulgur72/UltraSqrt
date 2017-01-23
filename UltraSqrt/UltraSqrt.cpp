@@ -12,7 +12,7 @@ typedef unsigned long long ulonlong;
 typedef unsigned long udeclong;
 
 // output limit (=max number of fraction decadic digits)
-#define OUTPUT_LIMIT 10000000
+#define OUTPUT_LIMIT 20000000
 
 // printf and scanf formats
 #define uL      "%lu"
@@ -64,6 +64,9 @@ ulonlong lead, next;
 ulonlong *bas_beg, *bas_end;
 ulonlong *res_beg, *res_mid, *res_end;
 
+// binary error(s)
+ulonlong hi_err, lo_err;
+
 // decimal output
 udeclong hi_dec, mi_dec, lo_dec;
 ulonlong dec_size, dec_mul, dec_split;
@@ -72,6 +75,7 @@ ulonlong dec_size, dec_mul, dec_split;
 int sqrt_init_qword();
 int sqrt_guess_next();
 int sqrt_check_next();
+int sqrt_calc_error();
 int sqrt_subtr_next();
 int sqrt_b2dec_init();
 int sqrt_b2dec_next();
@@ -106,7 +110,7 @@ int main(int argc, char* argv[])
     const ulonlong len = (WORDS * dec_len + DECGROUPS-1) / DECGROUPS;
     printf("* dec  fract part : " u8LL " figure(s)\n", DECDIG * dec_len);
     printf("* bin  fract size : " u8LL " %c-WORD(s)\n", len, XWORD);
-	printf("\n");
+    printf("\n");
 
     // start time
     DWORD start_time = GetTickCount();
@@ -130,6 +134,7 @@ int main(int argc, char* argv[])
 
     // cycle for next QWORD of the result
     bool base_error = false;
+    hi_err = lo_err = 0;
     for (i = 1; i <= len; ++i) {
 
         // update 'base' and 'rest' pointers
@@ -154,6 +159,11 @@ int main(int argc, char* argv[])
 
         // set next QWORD to the end of partial result
         *res_end = next;
+
+        // calc error
+        if (j < 2*i) {
+            sqrt_calc_error();
+        }
 
         // perform subtraction if 'next' > 0
         if (next != 0) {
@@ -190,14 +200,14 @@ int main(int argc, char* argv[])
 
     // binary to decimal "next" digits
     ulonlong b2dec_str = res_end - res_beg;
-	j = len + 1;
-	k = 0;
+    j = len + 1;
+    k = 0;
     for (i = 0; i < dec_len; ++i) {
         // restriction of the "remaining" binary result to only relevalt QWORDs
         // j = len + 1 - WORDS * i / DECGROUPS;
-		if (k >= DECGROUPS) { k -= DECGROUPS; --j; }
-		res_mid = res_beg + (j);
-		k += WORDS; k-= DECGROUPS; --j;
+        if (k >= DECGROUPS) { k -= DECGROUPS; --j; }
+        res_mid = res_beg + (j);
+        k += WORDS; k-= DECGROUPS; --j;
         // multiplication and shift
         sqrt_b2dec_next();
         // storing of the decimal output
@@ -227,23 +237,25 @@ int main(int argc, char* argv[])
     printf("* binary lead word: " u016LLX "\n", lead_stat);
     printf("* binary next word: " u016LLX "\n", next_stat);
     printf("* binary res shift: <<    " uLL " bits\n", shift_stat);
-	printf("\n");
-	for (i = 0; i <= MAX_ADAPT; ++i) {
+    printf("\n");
+    for (i = 0; i <= MAX_ADAPT; ++i) {
         ulonlong adapt = adapt_stat[i];
         printf("* next adapted +" uLL " : " u8LL " x " fPerc "\n", i, adapt, pPerc(adapt, len));
     }
-	printf("* bin calc cycles : " u8LL " # iter(s)\n", len);
-	printf("\n");
+    printf("* bin calc cycles : " u8LL " # iter(s)\n", len);
+    printf("\n");
     if (base_error) {
         printf("* binary remainder: !!! ERROR !!!\n");
     } else {
         printf("* binary rem t-pos: " u8LL " %s %c-WORD\n", base_rem_pos, TH(base_rem_pos), XWORD);
-        printf("* binary rem t-val: " u016LLX "\n", base_rem_val);
+        bool rem_too_low = (hi_err > 0 && hi_err >= base_rem_val);
+        printf("* binary rem t-val: " u016LLX "%s\n", base_rem_val, (rem_too_low ? " << !!!" : ""));
+        printf("* binary err t-val: " u016LLX "%s\n", hi_err,       (rem_too_low ? " >> !!!" : ""));
     }
     printf("\n");
     printf("* bi2dec start sz : " u8LL " %c-WORD(s)\n", b2dec_str, XWORD);
-	printf("* bi2dec final sz : " u8LL " %c-WORD(s)\n", b2dec_end, XWORD);
-	printf("* dec calc cycles : " u8LL " # iter(s)\n", dec_len);
+    printf("* bi2dec final sz : " u8LL " %c-WORD(s)\n", b2dec_end, XWORD);
+    printf("* dec calc cycles : " u8LL " # iter(s)\n", dec_len);
     printf("\n");
 
     // print the result
@@ -264,7 +276,6 @@ int main(int argc, char* argv[])
     if (pos > 0) {
         printf("%s\n", line);
     }
-	printf("\n");
 
     // release memory for decadic output
     free(deci);

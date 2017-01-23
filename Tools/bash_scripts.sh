@@ -10,7 +10,7 @@ ultrasqrt_1b1 () {
   local st; local en;
   local file;
   l=6000000
-  d=6e6; p=6e6
+  d=06e6; p=06e6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
   echo "ultra_bin = $ultra_bin"
   echo "num = $num"
@@ -39,7 +39,7 @@ ultrasqrt_par () {
   local file;
   l=10000000
   u_max=2; sl=5
-  d=Ae6; p=Ae6
+  d=10e6; p=10e6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
   echo "ultra_bin = $ultra_bin"
   echo "num = $num"
@@ -87,11 +87,11 @@ ultrasqrt_cmp () {
   local i; local l; local d; local p; local d2; local p2;
   local file; local file2;
   local nrnd=27; local nfrc;
-  local gsrc='/^sqrt/ || /^\* decadic/ || /^\* total/ || /^\* next/ || /^[1-9][0-9]*\./ { print; next }
+  local gsrc='/^sqrt/ || /^\* / || /^[1-9][0-9]*\./ { print; next }
               /^[0-9]/ { if (num>=length($0)) { print; num-=length($0) } else if (num>0) { print substr($0,1,num); num=0 } }'
   l=6000000
-  d=6e6;  p=6e6
-  d2=Ae6; p2=Ae6
+  d=06e6;  p=06e6
+  d2=20e6; p2=20e6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
   echo "num = $num"
   echo "l   = $l"
@@ -111,7 +111,7 @@ ultrasqrt_cmp () {
 # Meta mega
 ultramega () {
   local m=$1; shift
-  local n="$(printf '%X' $m)e6"
+  local n="$(printf '%02d' $m)e6"
   local u_action=$1; shift
   local s="${u_action#*_}"
   local ss="${u_action##*_}"
@@ -119,8 +119,8 @@ ultramega () {
 }
 # Meta mega compare
 ultrasqrt_cmp_1b1 () {
-	ultrasqrt_cmp d2=Ae6_1b1 p2=Ae6 $@
+    ultrasqrt_cmp d2=20e6_1b1 p2=20e6 $@
 }
 ultrasqrt_cmp_par () {
-	ultrasqrt_cmp d2=Ae6_par p2=Ae6 $@
+    ultrasqrt_cmp d2=20e6_par p2=20e6 $@
 }

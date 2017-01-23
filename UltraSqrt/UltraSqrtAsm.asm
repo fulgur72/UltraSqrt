@@ -7,6 +7,7 @@
 PUBLIC  ?sqrt_init_qword@@YAHXZ             ; sqrt_init_qword
 PUBLIC  ?sqrt_guess_next@@YAHXZ             ; sqrt_guess_next
 PUBLIC  ?sqrt_check_next@@YAHXZ             ; sqrt_check_next
+PUBLIC  ?sqrt_calc_error@@YAHXZ             ; sqrt_calc_error
 PUBLIC  ?sqrt_subtr_next@@YAHXZ             ; sqrt_subtr_next
 PUBLIC  ?sqrt_b2dec_init@@YAHXZ             ; sqrt_b2dec_init
 PUBLIC  ?sqrt_b2dec_next@@YAHXZ             ; sqrt_b2dec_next
@@ -22,6 +23,8 @@ EXTRN    ?res_mid@@3PEA_KEA :QWORD          ; res_mid
 EXTRN    ?res_end@@3PEA_KEA :QWORD          ; res_end
 EXTRN    ?lead@@3_KA        :QWORD          ; lead
 EXTRN    ?next@@3_KA        :QWORD          ; next
+EXTRN    ?hi_err@@3_KA      :QWORD          ; hi_err
+EXTRN    ?lo_err@@3_KA      :QWORD          ; lo_err
 EXTRN    ?shift@@3_KA       :QWORD          ; shift
 EXTRN    ?hi_dec@@3KA       :DWORD          ; hi_dec
 EXTRN    ?mi_dec@@3KA       :DWORD          ; mi_dec
@@ -172,6 +175,25 @@ _TEXT   SEGMENT
 ?sqrt_check_next@@YAHXZ ENDP                ; sqrt_check_next
 
 ;;***************************************************
+;; PROC sqrt_calc_error
+;;
+;; - calculate remainder error of base
+;;***************************************************
+?sqrt_calc_error@@YAHXZ PROC                ; sqrt_calc_error
+
+    ;; take rest[res_mid+1] (= first not used element)
+        mov r8, ?res_mid@@3PEA_KEA          ; R8 <- res_mid
+        mov rax, [r8+8h]                    ; RAX <- rest[res_mid+1]
+    ;; multiply it by next and add to error(s)
+        mul ?next@@3_KA                     ; RDX:RAX <- RAX * next
+        add ?lo_err@@3_KA, rdx              ; lo_err += RDX
+        adc ?hi_err@@3_KA, 0h               ;  with carry to hi_err
+
+    ret 0
+
+?sqrt_calc_error@@YAHXZ ENDP                ; sqrt_calc_error
+
+;;***************************************************
 ;; PROC sqrt_subtr_next
 ;;
 ;; - subtracts from 'base' partial result multiplied
@@ -302,7 +324,7 @@ _TEXT   SEGMENT
         div rbx                             ; 1st div -> lo_dec
         mov ?lo_dec@@3KA, edx               ; lo_dec <- EDX (32 bits only)
         xor rdx, rdx                        ; RDX <- 0
-        div rbx                             ; 2nd div -> hi_dec, mi_dec 
+        div rbx                             ; 2nd div -> hi_dec, mi_dec
         mov ?mi_dec@@3KA, edx               ; mi_dec <- EDX (32 bits only)
         mov ?hi_dec@@3KA, eax               ; hi_dec <- EAX (32 bits only)
     ;; clean (already) used top bits from rest[res_beg]

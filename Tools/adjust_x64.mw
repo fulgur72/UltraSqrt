@@ -96,7 +96,9 @@
 <Group autoexecute="true" labelreference="L32" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal">Digits := 50:
-Size := 64:</Text-field>
+Size := 64:
+DecGrSize := 27:
+log2_10 := 28738/8651:</Text-field>
 </Input>
 </Group>
 <Group autoexecute="true" labelreference="L35" drawlabel="true">
@@ -121,15 +123,21 @@ end:</Text-field>
 <Text-field style="Heading 1" layout="Heading 1"><Font size="14">Adjust probability code</Font></Text-field></Title>
 <Group autoexecute="true" labelreference="L34" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal">adjust_prob := proc(sq::integer, cycl::integer)
-  global Size;
-  local ee, num, l, n, nn, p0, p1, p2, c0, c1, c2;
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal">adjust_prob := proc(sq::integer, figures::integer)
+  global Size, DecGrSize, log2_10;
+  local dec_sz, dec_fin_sz, bin_sz, bin_err_tv,
+    ee, num, l, n, nn, p0, p1, p2, c0, c1, c2;
+  dec_sz := DecGrSize*ceil(figures/DecGrSize);
+  bin_sz := ceil(dec_sz*log2_10/Size);
   ee := trunc(log[4](sq));
   num := evalf(sqrt(sq)*2^(Size-1-ee));
   l := trunc(num);
   n := trunc((num-l)*2^Size);
   nn := 2^Size-1-n;
-  if nn &lt;= l then
+  if n = 0 then
+    p0 := 1;
+    p1 := 1;
+  elif nn &lt;= l then
     p0 := evalf(1-nn/2/l);
     p1 := 1;
   elif nn &lt;= 2*l then
@@ -141,19 +149,43 @@ end:</Text-field>
   fi;
   p2 := 1 - p1;
   p1 := p1 - p0;
-  c2 := round(p2*cycl);
-  c1 := round((p1+p2)*cycl)-c2;
-  c0 := cycl-c1-c2;
+  c2 := round(p2*bin_sz);
+  c1 := round((p1+p2)*bin_sz)-c2;
+  c0 := bin_sz-c1-c2;
 <Font encoding="UTF-8">  printf(&quot;sqrt(%d)\134n&quot;,sq);
   printf(&quot;\134n&quot;);
-  printf(&quot;* binary lead: 0x%s\134n&quot;, num2hexstr(l, Size/4));
-  printf(&quot;* binary next: 0x%s\134n&quot;,</Font> num2hexstr(n, Size/4));
-<Font encoding="UTF-8">  printf(&quot;* binary shift   &lt;&lt;  %d bits\134n&quot;,</Font> (Size-1-ee));
-<Font encoding="UTF-8">  printf(&quot;* + bin adapt  0x : %8d    ~ %12.8f %%\134n&quot;, c0,</Font> 100*p0);
-<Font encoding="UTF-8">  printf(&quot;* + bin adapt  1x : %8d    ~ %12.8f %%\134n&quot;, c1,</Font> 100*p1);
-<Font encoding="UTF-8">  printf(&quot;* + bin adapt  2x : %8d    ~ %12.8f %%\134n&quot;, c2,</Font> 100*p2);
-<Font encoding="UTF-8">  printf(&quot;* bin calc cycles : %8d\134n&quot;, cycl);
+  printf(&quot;* dec  fract part : %8d figure(s)\134n&quot;, dec_sz);
+  printf(&quot;* bin  fract size : %8d Q-WORD(s)\134n&quot;, bin_sz);
   printf(&quot;\134n&quot;);
+  printf(&quot;* binary lead word: 0x%s\134n&quot;, num2hexstr(l, Size/4));
+  printf(&quot;* binary next word: 0x%s\134n&quot;,</Font> num2hexstr(n, Size/4));
+<Font encoding="UTF-8">  printf(&quot;* binary res shift: &lt;&lt;    %d bits\134n&quot;,</Font> (Size-1-ee));
+<Font encoding="UTF-8">  printf(&quot;\134n&quot;);
+  printf(&quot;* next adapted +0 : %8d x %12.8f %%\134n&quot;, c0,</Font> 100*p0);
+  printf(&quot;* next adapted +1<Font encoding="UTF-8"> : %8d x %12.8f %%\134n&quot;, c1,</Font> 100*p1);
+  printf(&quot;* next adapted +2<Font encoding="UTF-8"> : %8d x %12.8f %%\134n&quot;, c2,</Font> 100*p2);
+<Font encoding="UTF-8">  printf(&quot;* bin calc cycles : %8d # iter(s)\134n&quot;, bin_sz);
+  printf(&quot;\134n&quot;);
+  printf(&quot;* binary rem t-pos: %8d xx Q-WORD\134n&quot;, bin_sz);
+  printf(&quot;* binary rem t-val:&lt;0x%s\134n&quot;, </Font>num2hexstr(l, Size/4));
+  if n = 0 then
+    bin_err_tv := 0;
+  else
+    bin_err_tv := trunc(bin_sz/8);
+  fi;
+<Font encoding="UTF-8">  printf(&quot;* binary err t-val:~0x%s\134n&quot;, </Font>num2hexstr(bin_err_tv, Size/4));
+<Font encoding="UTF-8">  printf(&quot;\134n&quot;);
+  printf(&quot;* bi2dec start sz : %8d Q-WORD(s)\134n&quot;, bin_sz);
+  if n = 0 then
+    dec_fin_sz := 0;
+  elif (dec_sz + ee) mod Size &lt; DecGrSize then
+</Font>    dec_fin_sz := 2;
+  else
+    dec_fin_sz := 3;
+  fi;
+<Font encoding="UTF-8">  printf(&quot;* bi2dec final sz : %8d Q-WORD(s)\134n&quot;, dec_fin_sz);
+</Font>  printf(&quot;* dec calc cycles : <Font encoding="UTF-8">%8d # iter(s)\134n&quot;, dec_sz/</Font>DecGrSize);
+<Font encoding="UTF-8">  printf(&quot;\134n&quot;);
 </Font>end:</Text-field>
 </Input>
 </Group>
@@ -193,16 +225,13 @@ end:</Text-field>
 </Input>
 </Group>
 </Section>
-<Section collapsed="false" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
-<Text-field style="Heading 1" layout="Heading 1">Cycles</Text-field></Title>
+<Section collapsed="true" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Text-field style="Heading 1" layout="Heading 1">Figures</Text-field></Title>
 <Group autoexecute="true" labelreference="L57" drawlabel="true">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Cycles needed for computation of: 2,000,025
-cycles := 103812;</Text-field>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Decimal figures
+figures := 2000000;</Text-field>
 </Input>
-<Output>
-<Text-field style="Line Printed Output" layout="Line Printed Output">cycles := 103812</Text-field>
-</Output>
 </Group>
 <Group labelreference="L58" drawlabel="true">
 <Input>
@@ -210,54 +239,54 @@ cycles := 103812;</Text-field>
 </Input>
 </Group>
 </Section>
-<Section collapsed="false" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Section collapsed="true" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
 <Text-field style="Heading 1" layout="Heading 1">Adjust probablity cases</Text-field></Title>
 <Group labelreference="L43" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2 )
-adjust_prob(2, cycles);</Text-field>
+adjust_prob(2, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L42" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 3 )
-adjust_prob(3, cycles);</Text-field>
+adjust_prob(3, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L41" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 5 )
-adjust_prob(5, cycles);</Text-field>
+adjust_prob(5, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L40" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 17 )
-adjust_prob(17, cycles);</Text-field>
+adjust_prob(17, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L39" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 19 )
-adjust_prob(19, cycles);</Text-field>
+adjust_prob(19, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L38" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 23 )
-adjust_prob(23, cycles);</Text-field>
+adjust_prob(23, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L46" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 1 ) - maximal value
-adjust_prob(2^32-1, cycles);</Text-field>
+adjust_prob(2^32-1, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L47" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^32 - 2 ) - maximal value - 1
-adjust_prob(2^32-2, cycles);</Text-field>
+adjust_prob(2^32-2, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L48" drawlabel="true">
@@ -266,7 +295,7 @@ adjust_prob(2^32-2, cycles);</Text-field>
 </Input>
 </Group>
 </Section>
-<Section collapsed="false" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Section collapsed="true" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
 <Text-field style="Heading 1" layout="Heading 1">Adjust probability extremes</Text-field></Title>
 <Group labelreference="L49" drawlabel="true">
 <Input>
@@ -286,7 +315,7 @@ adjust_prob(2^32-2, cycles);</Text-field>
 #    lead^2 &lt; (2^30 + 1) * 2^96 but difference is
 #    small and therefore next will be also small
 # ***************************************************
-adjust_prob(2^30+1, cycles);</Text-field>
+adjust_prob(2^30+1, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L50" drawlabel="true">
@@ -307,7 +336,7 @@ adjust_prob(2^30+1, cycles);</Text-field>
 #    small and therefore next will be close to 2^64
 # * next only slightly less than 2^64
 # ***************************************************
-adjust_prob(2^30-1, cycles);</Text-field>
+adjust_prob(2^30-1, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L51" drawlabel="true">
@@ -326,7 +355,7 @@ adjust_prob(2^30-1, cycles);</Text-field>
 #    only 1 and therefore next will be 2^64-1
 # * next = 2^64 - 1
 # ***************************************************
-adjust_prob(2^62+1, cycles);</Text-field>
+adjust_prob(2^62+1, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L52" drawlabel="true">
@@ -345,7 +374,7 @@ adjust_prob(2^62+1, cycles);</Text-field>
 #    only 1 and therefore next will be 2^64-1
 # * next = 2^64 - 1
 # ***************************************************
-adjust_prob(2^64-2, cycles);</Text-field>
+adjust_prob(2^64-2, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L53" drawlabel="true">
@@ -354,7 +383,7 @@ adjust_prob(2^64-2, cycles);</Text-field>
 </Input>
 </Group>
 </Section>
-<Section collapsed="false" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
+<Section collapsed="true" MultipleChoiceAnswerIndex="-1" MultipleChoiceRandomizeChoices="false" TrueFalseAnswerIndex="-1" EssayAnswerRows="5" EssayAnswerColumns="60"><Title>
 <Text-field style="Heading 1" layout="Heading 1">Adjust find cases</Text-field></Title>
 <Group labelreference="L54" drawlabel="true">
 <Input>
@@ -364,8 +393,8 @@ adjust_prob(2^64-2, cycles);</Text-field>
 # ***************************************************
 adjust_find(2^28-2, 2^28+2, 2^63, 0, 2^48);
 adjust_find(2^30-8, 2^30+8, 2^63, 0, 2^48);
-adjust_prob(2^28+1, cycles);
-adjust_prob(2^30+1, cycles);</Text-field>
+adjust_prob(2^28+1, figures);
+adjust_prob(2^30+1, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L55" drawlabel="true">
@@ -375,8 +404,8 @@ adjust_prob(2^30+1, cycles);</Text-field>
 # &lt;== Find lead + next ~=~ 2^64
 # ***************************************************
 # adjust_find(2, 2^18, 2^64, 1, 2^48);
-adjust_prob(40429, cycles);
-adjust_prob(157387, cycles);</Text-field>
+adjust_prob(40429, figures);
+adjust_prob(157387, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L56" drawlabel="true">

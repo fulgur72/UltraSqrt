@@ -24,7 +24,7 @@ ultrasqrt_1b1 () {
     file="${d}/sqrt_${i}_${p}.txt"
     echo "  ==> $file"
     $ultra_bin $i $l >"$file"
-    head -n 9 "$file"
+    head -n 26 "$file"
   done
   en=$(date "+%s")
   echo "Total time: $(( en-st )) sec"
@@ -76,7 +76,7 @@ ultrasqrt_par () {
     echo "At $dt *** $i ***"
     file="${d}/sqrt_${i}_${p}.txt"
     echo "  <== $file"
-    head -n 9 "$file"
+    head -n 26 "$file"
   done
   echo "Total time: $(( en-st )) sec"
   echo

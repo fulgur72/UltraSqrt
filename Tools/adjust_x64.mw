@@ -3,7 +3,7 @@
 <Version major="15" minor="1"/>
 <Label-Scheme value="2" prefix=""/>
 <View-Properties presentation="false"></View-Properties>
-<MapleNet-Properties elisiondigitsbefore="100" labelling="true" indentamount="4" elisiontermsthreshold="10000" ansi="false" errorbreak="1" useclientjvm="true" echo="1" imaginaryunit="I" labelwidth="20" contextmenusize="automatic" plotdriver="opengl" elisiondigitsafter="100" plotoutput="terminal" helpbrowser="standard" rtablesize="10" elisiontermsbefore="100" elisiondigitsthreshold="10000" typesetting="standard" plotdevice="inline" verboseproc="1" showassumed="1" errorcursor="false" longdelim="true" plotoptions="" quiet="false" elisiontermsafter="100" screenwidth="79" preplot="" prettyprint="0" displayprecision="-1" screenpixelheight="1200" warnlevel="3" screenheight="25" latexwidth="6.0" postplot="" prompt="&gt; " ShowLabels="true"/>
+<MapleNet-Properties elisiondigitsbefore="100" labelling="true" indentamount="4" elisiontermsthreshold="10000" ansi="false" errorbreak="1" useclientjvm="true" echo="1" imaginaryunit="I" labelwidth="20" contextmenusize="automatic" plotdriver="opengl" elisiondigitsafter="100" plotoutput="terminal" helpbrowser="standard" rtablesize="10" elisiontermsbefore="100" elisiondigitsthreshold="10000" typesetting="standard" plotdevice="inline" verboseproc="1" showassumed="1" errorcursor="false" longdelim="true" plotoptions="" quiet="false" elisiontermsafter="100" screenwidth="79" preplot="" prettyprint="3" displayprecision="-1" screenpixelheight="1200" warnlevel="3" screenheight="25" latexwidth="6.0" postplot="" prompt="&gt; " ShowLabels="true"/>
 <Styles><Font name="Ordered List 1" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Annotation Text" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Ordered List 2" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
@@ -174,19 +174,19 @@ end:</Text-field>
   printf(&quot;* binary next word: 0x%s\134n&quot;,</Font> num2hexstr(n, Size/4));
 <Font encoding="UTF-8">  printf(&quot;* binary res shift: &lt;&lt;    %d bits\134n&quot;,</Font> (Size-1-ee));
 <Font encoding="UTF-8">  printf(&quot;\134n&quot;);
-  printf(&quot;* next adapted +0 : %8d x %12.8f %%\134n&quot;, c0,</Font> 100*p0);
-  printf(&quot;* next adapted +1<Font encoding="UTF-8"> : %8d x %12.8f %%\134n&quot;, c1,</Font> 100*p1);
-  printf(&quot;* next adapted +2<Font encoding="UTF-8"> : %8d x %12.8f %%\134n&quot;, c2,</Font> 100*p2);
+  printf(&quot;~ next adapted +0 : %8d x %12.8f %%\134n&quot;, c0,</Font> 100*p0);
+  printf(&quot;~ next adapted +1<Font encoding="UTF-8"> : %8d x %12.8f %%\134n&quot;, c1,</Font> 100*p1);
+  printf(&quot;~ next adapted +2<Font encoding="UTF-8"> : %8d x %12.8f %%\134n&quot;, c2,</Font> 100*p2);
 <Font encoding="UTF-8">  printf(&quot;* bin calc cycles : %8d # iter(s)\134n&quot;, bin_sz);
   printf(&quot;\134n&quot;);
   printf(&quot;* binary rem t-pos: %8d %s %s-WORD\134n&quot;, bin_sz, xth(bin_sz), xWORD());
-  printf(&quot;* binary rem t-val:&lt;0x%s\134n&quot;, </Font>num2hexstr(l, Size/4));
+  printf(&quot;&lt; binary rem t-val: 0x%s\134n&quot;, </Font>num2hexstr(l, Size/4));
   if n = 0 then
     bin_err_tv := 0;
   else
     bin_err_tv := trunc(bin_sz/8);
   fi;
-<Font encoding="UTF-8">  printf(&quot;* binary err t-val:~0x%s\134n&quot;, </Font>num2hexstr(bin_err_tv, Size/4));
+<Font encoding="UTF-8">  printf(&quot;~ binary err t-val: 0x%s\134n&quot;, </Font>num2hexstr(bin_err_tv, Size/4));
 <Font encoding="UTF-8">  printf(&quot;\134n&quot;);
   printf(&quot;* bi2dec start sz : %8d Q-WORD(s)\134n&quot;, bin_sz);
 </Font>  if n = 0 then
@@ -243,7 +243,7 @@ end:</Text-field>
 <Group autoexecute="true" labelreference="L57" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Decimal figures
-figures := 2000000;</Text-field>
+figures := 1000000;</Text-field>
 </Input>
 </Group>
 <Group labelreference="L58" drawlabel="true">
@@ -303,6 +303,18 @@ adjust_prob(2^32-2, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L48" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 + 1 ) - max adjust
+adjust_prob(2^30+1, figures);</Text-field>
+</Input>
+</Group>
+<Group labelreference="L60" drawlabel="true">
+<Input>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^30 - 1 ) - min adjust
+adjust_prob(2^30-1, figures);</Text-field>
+</Input>
+</Group>
+<Group labelreference="L61" drawlabel="true">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>

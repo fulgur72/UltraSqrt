@@ -3,7 +3,7 @@
 <Version major="15" minor="1"/>
 <Label-Scheme value="2" prefix=""/>
 <View-Properties presentation="false"></View-Properties>
-<MapleNet-Properties elisiondigitsbefore="100" labelling="true" indentamount="4" elisiontermsthreshold="10000" ansi="false" errorbreak="1" useclientjvm="true" echo="1" imaginaryunit="I" labelwidth="20" contextmenusize="automatic" plotdriver="opengl" elisiondigitsafter="100" plotoutput="terminal" helpbrowser="standard" rtablesize="10" elisiontermsbefore="100" elisiondigitsthreshold="10000" typesetting="standard" plotdevice="inline" verboseproc="1" showassumed="1" errorcursor="false" longdelim="true" plotoptions="" quiet="false" elisiontermsafter="100" screenwidth="79" preplot="" prettyprint="3" displayprecision="-1" screenpixelheight="1200" warnlevel="3" screenheight="25" latexwidth="6.0" postplot="" prompt="&gt; " ShowLabels="true"/>
+<MapleNet-Properties elisiondigitsbefore="100" labelling="true" indentamount="4" elisiontermsthreshold="10000" ansi="false" errorbreak="1" useclientjvm="true" echo="1" imaginaryunit="I" labelwidth="20" contextmenusize="automatic" plotdriver="opengl" elisiondigitsafter="100" plotoutput="terminal" helpbrowser="standard" rtablesize="10" elisiontermsbefore="100" elisiondigitsthreshold="10000" typesetting="standard" plotdevice="inline" verboseproc="1" showassumed="1" errorcursor="false" longdelim="true" plotoptions="" quiet="false" elisiontermsafter="100" screenwidth="79" preplot="" prettyprint="0" displayprecision="-1" screenpixelheight="1200" warnlevel="3" screenheight="25" latexwidth="6.0" postplot="" prompt="&gt; " ShowLabels="true"/>
 <Styles><Font name="Ordered List 1" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Annotation Text" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
 <Font name="Ordered List 2" background="[255,255,255]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,0]" italic="false" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false" placeholder="false"/>
@@ -138,7 +138,8 @@ end:</Text-field>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal">adjust_prob := proc(sq::integer, figures::integer)
   global Size, DecGrSize, log2_10;
   local dec_sz, dec_fin_sz, bin_sz, bin_err_tv,
-    ee, num, l, n, nn, p0, p1, p2, c0, c1, c2;
+    ee, num, l, n, nn, p0, p1, p2, c0, c1, c2,
+    sqr_i, sqr_f;
   dec_sz := DecGrSize*ceil(figures/DecGrSize);
   bin_sz := ceil(dec_sz*log2_10/Size);
   ee := trunc(log[4](sq));
@@ -198,6 +199,11 @@ end:</Text-field>
   fi;
 <Font encoding="UTF-8">  printf(&quot;* bi2dec final sz : %8d %s-WORD(s)\134n&quot;, dec_fin_sz</Font>, xWORD());
   printf(&quot;* dec calc cycles : <Font encoding="UTF-8">%8d # iter(s)\134n&quot;, dec_sz/</Font>DecGrSize);
+<Font encoding="UTF-8">  printf(&quot;\134n&quot;);
+</Font>  sqr_i := trunc(sqrt(sq));
+  sqr_f := floor(evalf((sqrt(sq)-sqr_i)*10^DecGrSize));
+<Font encoding="UTF-8">  printf(&quot;%d.\134n&quot;, sqr_i);
+  printf(&quot;%0*d\134n&quot;, </Font>DecGrSize, sqr_f);
 <Font encoding="UTF-8">  printf(&quot;\134n&quot;);
 </Font>end:</Text-field>
 </Input>

@@ -11,7 +11,7 @@ BEGIN        { ORS = "\r\n"
                }
                next
              }
-/^$/         { if (length(s) > 0) {
+END          { if (length(s) > 0) {
                  print s
                  s = ""
                }

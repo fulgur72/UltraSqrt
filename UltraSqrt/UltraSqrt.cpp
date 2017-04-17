@@ -6,16 +6,27 @@
 #include <malloc.h>
 #include <Windows.h>
 
-// typedefs
-typedef unsigned long ulong;
-typedef unsigned long long ulonlong;
-typedef unsigned long udeclong;
+// input limits (max size of numbers in command line)
+// #define _INPUT_MAX_32_BITS as compile param
+// #define _INPUT_MAX_64_BITS as compile param
 
 // output limit (=max number of fraction decadic digits)
 #define OUTPUT_LIMIT 20000000
 
-// printf and scanf formats
-#define uL      "%lu"
+// input typedefs and defines
+#if defined _INPUT_MAX_32_BITS
+    typedef unsigned long uinplong;
+    #define uIL     "%lu"
+#elif defined _INPUT_MAX_64_BITS
+    typedef unsigned long long uinplong;
+    #define uIL     "%llu"
+#endif
+
+// typedefs
+typedef unsigned long long ulonlong;
+typedef unsigned long udeclong;
+
+// printf formats
 #define uLL     "%llu"
 #define u8LL    "%8llu"
 #define u016LLX "0x%016llX"
@@ -83,19 +94,19 @@ int sqrt_b2dec_next();
 int main(int argc, char* argv[])
 {
     // arguments
-    const ulong MAX_DIGITS = OUTPUT_LIMIT;
-    ulong arg_num, arg_len;
+    const uinplong MAX_DIGITS = OUTPUT_LIMIT;
+    uinplong arg_num, arg_len;
 
     // scan and check cmd line arguments
     bool isOk = true;
     if(isOk) isOk = (argc == 3);
-    if(isOk) isOk = (sscanf_s(argv[1], uL, &arg_num) == 1 && arg_num != 0);
-    if(isOk) isOk = (sscanf_s(argv[2], uL, &arg_len) == 1 && arg_len <= MAX_DIGITS);
+    if(isOk) isOk = (sscanf_s(argv[1], uIL, &arg_num) == 1 && arg_num != 0);
+    if(isOk) isOk = (sscanf_s(argv[2], uIL, &arg_len) == 1 && arg_len <= MAX_DIGITS);
     if(isOk) {
         // print input 'arg_num' value
-        printf("sqrt(" uL ")\n\n", arg_num);
+        printf("sqrt(" uIL ")\n\n", arg_num);
     } else {
-        printf("Use: %s <number> <length>, where <length> <= " uL "\n\n", argv[0], MAX_DIGITS);
+        printf("Use: %s <number> <length>, where <length> <= " uIL "\n\n", argv[0], MAX_DIGITS);
         return 1;
     }
 
@@ -205,9 +216,8 @@ int main(int argc, char* argv[])
     for (i = 0; i < dec_len; ++i) {
         // restriction of the "remaining" binary result to only relevalt QWORDs
         // j = len + 1 - WORDS * i / DECGROUPS;
-        if (k >= DECGROUPS) { k -= DECGROUPS; --j; }
         res_mid = res_beg + (j);
-        k += WORDS; k-= DECGROUPS; --j;
+        k += WORDS; do { --j;  k -= DECGROUPS; } while (k >= DECGROUPS);
         // multiplication and shift
         sqrt_b2dec_next();
         // storing of the decimal output

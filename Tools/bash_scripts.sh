@@ -8,7 +8,7 @@ num="002 003 005 017 019 023 4294967295 4294967294 1073741825 1073741823"
 ultrasqrt_1b1 () {
   local i; local l; local d; local p;
   local st; local en;
-  local file;
+  local file; local fline;
   l=6000000
   d=06e6; p=06e6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
@@ -25,8 +25,9 @@ ultrasqrt_1b1 () {
     echo "  ==> $file"
     $ultra_bin $i $l >"$file"
     echo
+    fline=$(cat "$file" | wc -l)
     head -n 28 -- "$file"
-    echo " ..."
+    echo " ... $((fline-30)) line(s) ..."
     tail -n 02 -- "$file"
     echo
   done
@@ -40,7 +41,7 @@ ultrasqrt_par () {
   local i; local l; local d; local p;
   local u_max; local u; local sl; local dt;
   local st; local en;
-  local file;
+  local file; local fline;
   l=10000000
   u_max=2; sl=5
   d=10e6; p=10e6
@@ -79,10 +80,11 @@ ultrasqrt_par () {
     dt=$(date "+%T")
     echo "At $dt *** $i ***"
     file="${d}/sqrt_${i}_${p}.txt"
+    fline=$(cat "$file" | wc -l)
     echo "  <== $file"
     echo
     head -n 28 -- "$file"
-    echo " ..."
+    echo " ... $((fline-30)) line(s) ..."
     tail -n 02 -- "$file"
     echo
   done

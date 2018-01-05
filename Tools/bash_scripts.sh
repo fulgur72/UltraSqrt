@@ -122,12 +122,12 @@ ultramega () {
   local u_action=$1; shift
   local s="${u_action#*_}"
   local ss="${u_action##*_}"
-  $u_action l=${m}000000 d="${n}_${ss}" p="${n}" $@ | tee "${s}_${n}.txt"
+  $u_action l=${m}000000 d="${n}_${ss}" p="${n}" "$@" | tee "${s}_${n}.txt"
 }
 # Meta mega compare
 ultrasqrt_cmp_1b1 () {
-    ultrasqrt_cmp d2=20e6_1b1 p2=20e6 $@
+    ultrasqrt_cmp d2=20e6_1b1 p2=20e6 "$@"
 }
 ultrasqrt_cmp_par () {
-    ultrasqrt_cmp d2=20e6_par p2=20e6 $@
+    ultrasqrt_cmp d2=20e6_par p2=20e6 "$@"
 }

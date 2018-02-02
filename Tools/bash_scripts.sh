@@ -1,4 +1,5 @@
 #!/bin/bash
+[[ "${BASH_SOURCE[0]}" != "${0}" ]] && echo "Script is being sourced ..." || echo "Script is NOT sourced - ERROR" || exit 1
 
 ultra_bin=./UltraSqrt.exe
 

@@ -11,7 +11,7 @@
 // #define _INPUT_MAX_64_BITS as compile param
 
 // output limit (=max number of fraction decadic digits)
-#define OUTPUT_LIMIT 20000000
+#define OUTPUT_LIMIT 50000000
 
 // input typedefs and defines
 #if defined _INPUT_MAX_32_BITS

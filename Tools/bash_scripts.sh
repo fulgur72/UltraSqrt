@@ -5,7 +5,7 @@ ultra_bin=./UltraSqrt.exe
 
 num="002 003 005 017 019 023 4294967295 4294967294 1073741825 1073741823"
 
-# One by one processing 6e6
+# One by one processing 06e6
 ultrasqrt_1b1 () {
   local i; local l; local d; local p;
   local st; local en;
@@ -37,7 +37,7 @@ ultrasqrt_1b1 () {
   echo
 }
 
-# Parallel processing 1e7
+# Parallel processing 10e6
 ultrasqrt_par () {
   local i; local l; local d; local p;
   local u_max; local u; local sl; local dt;
@@ -55,11 +55,14 @@ ultrasqrt_par () {
   mkdir -p "${d}"
   st=$(date "+%s")
   for i in $num; do
-    dt=$(date "+%T")
-    echo "At $dt *** $i ***"
-    file="${d}/sqrt_${i}_${p}.txt"
-    echo "  ==> $file"
-    $ultra_bin $i $l >"$file"&
+    u=$(ps -f | grep UltraSqrt | wc -l)
+    if [[ $u -lt $u_max ]]; then
+      dt=$(date "+%T")
+      echo "At $dt *** $i ***"
+      file="${d}/sqrt_${i}_${p}.txt"
+      echo "  ==> $file"
+      $ultra_bin $i $l >"$file"&
+    fi
     u=$u_max
     while [[ $u -ge $u_max ]]; do
       sleep $sl
@@ -102,7 +105,7 @@ ultrasqrt_cmp () {
               /^[0-9]/ { if (num>=length($0)) { print; num-=length($0) } else if (num>0) { print substr($0,1,num); num=0 } }'
   l=6000000
   d=06e6;  p=06e6
-  d2=20e6; p2=20e6
+  d2=50e6; p2=50e6
   while [[ $# -ge 1 ]]; do eval "$1"; shift; done
   nfrc=$((l+nrnd-1-(l-1)%nrnd))
   for i in $num; do
@@ -111,7 +114,8 @@ ultrasqrt_cmp () {
     echo "< $file <<"
     file2="${d2}/sqrt_${i}_${p2}.txt"
     echo "> $file2 >>"
-    diff <(gawk -v num=$nfrc -- "$gsrc" "$file") <(gawk -v num=$nfrc -- "$gsrc" "$file2")
+    diff <(gawk -v num=$nfrc -- "$gsrc" "$file") <(gawk -v num=$nfrc -- "$gsrc" "$file2") \
+      && echo "Sqrt results in files $file and $file2 are identical"
     echo
   done
 }
@@ -127,8 +131,8 @@ ultramega () {
 }
 # Meta mega compare
 ultrasqrt_cmp_1b1 () {
-    ultrasqrt_cmp d2=20e6_1b1 p2=20e6 "$@"
+    ultrasqrt_cmp d2=50e6_1b1 p2=50e6 "$@"
 }
 ultrasqrt_cmp_par () {
-    ultrasqrt_cmp d2=20e6_par p2=20e6 "$@"
+    ultrasqrt_cmp d2=50e6_1b1 p2=50e6 "$@"
 }

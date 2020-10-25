@@ -1,9 +1,10 @@
-BEGIN        { ORS = "\r\n"
+BEGIN        {  RS = "\r?\n"
+               ORS = "\r\n"
                linesize = 60
                grp = 3
                sep = " "
              }
-/^[1-9]+\.$/ { d = length($0)
+/^[0-9]+\.$/ { d = length($0)
                s = substr($0, 1, d-1)
                while (d % grp != 1) {
                  d ++
@@ -45,5 +46,6 @@ END          { if (length(s) > 0) {
                  s = ""
                }
              }
-             { print
+/^[^*]/      { print
+               print ""
              }

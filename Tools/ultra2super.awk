@@ -1,7 +1,8 @@
-BEGIN        { ORS = "\r\n"
+BEGIN        {  RS = "\r?\n"
+               ORS = "\r\n"
                linesize = 60
              }
-/^[1-9]+\.$/ { s = substr("    ", 1, 6-length($0)) $0
+/^[0-9]+\.$/ { s = substr("    ", 1, 6-length($0)) $0
                next
              }
 /^[0-9]/     { s = s $0

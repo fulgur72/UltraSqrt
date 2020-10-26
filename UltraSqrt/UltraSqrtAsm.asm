@@ -11,6 +11,8 @@ PUBLIC  ?sqrt_calc_error@@YAHXZ             ; sqrt_calc_error
 PUBLIC  ?sqrt_subtr_next@@YAHXZ             ; sqrt_subtr_next
 PUBLIC  ?sqrt_b2dec_init@@YAHXZ             ; sqrt_b2dec_init
 PUBLIC  ?sqrt_b2dec_next@@YAHXZ             ; sqrt_b2dec_next
+PUBLIC  ?sqrt_b2dec_binrem@@YAHXZ           ; sqrt_b2dec_binrem
+PUBLIC  ?sqrt_b2dec_decrem@@YAHXZ           ; sqrt_b2dec_decrem
 
 ;;***************************************************
 ;; Extern data from 'UltraSqrt.cpp'
@@ -335,6 +337,60 @@ _TEXT   SEGMENT
     ret 0
 
 ?sqrt_b2dec_next@@YAHXZ ENDP                ; sqrt_b2dec_next
+
+;;***************************************************
+;; PROC sqrt_b2dec_binrem
+;;
+;; - un-shift binary remainder from 'rest'
+;;   after binary to decimal transformation
+;;***************************************************
+?sqrt_b2dec_binrem@@YAHXZ PROC              ; sqrt_b2dec_binrem
+
+    ;; read shift, res_beg and res_end
+        mov rcx, ?shift@@3_KA               ; RCX <- shift
+        mov r8, ?res_beg@@3PEA_KEA          ; R8 starter <- res_beg
+        mov r9, ?res_end@@3PEA_KEA          ; R9 stopper <- res_end
+    ;; clear res_beg and shift
+        xor rax, rax                        ; RAX <- 0
+        mov ?shift@@3_KA, rax               ; shift <- RAX (=0)
+        xchg rax, [r8]                      ; RAX <-> rest[res_beg] (=0)
+        mov rsi, r8                         ; RSI iter <- R8 starter
+    ;; shift by CL bits to right other Q-words
+    l_shiftloop:
+        add rsi, 8h                         ; ++ RSI iter
+        mov rbx, [rsi]                      ; RBX <- rest[iter]
+        shrd rbx, rax, cl                   ; RBX >> CL low bits filled form RAX
+        xchg rbx, [rsi]                     ; RBX <-> rest[iter]
+        mov rax, rbx                        ; RAX <- RBX
+        cmp rsi, r9                         ; cmp res_end, iter
+        jbe l_shiftloop                     ; if iter <= res_end goto shiftloop
+    ;; update res_end
+        mov ?res_end@@3PEA_KEA, rsi         ; res_end <- rsi
+
+    ret 0
+
+?sqrt_b2dec_binrem@@YAHXZ ENDP              ; sqrt_b2dec_binrem
+
+;;***************************************************
+;; PROC sqrt_b2dec_decrem
+;;
+;; - extract leading dec digits from binary remainder
+;;***************************************************
+?sqrt_b2dec_decrem@@YAHXZ PROC              ; sqrt_b2dec_decrem
+
+    ;; read rest[res_beg+1]
+        mov r8, ?res_beg@@3PEA_KEA          ; R8 iter <- res_beg
+        mov rax, [r8+8h]                    ; RAX <- rest[res_beg+1]
+    ;; calculates leading 9 digits of decimal remainder
+        mov rbx, ?dec_split@@3_KA           ; RBX <- dec_split
+        mul rbx                             ; RAX * RBX -> RDX:RAX
+        mov ?hi_dec@@3KA, edx               ; hi_dec <- EDX (32 bits only)
+        mul rbx                             ; RAX * RBX -> RDX:RAX
+        mov ?lo_dec@@3KA, edx               ; lo_dec <- EDX (32 bits only)
+
+    ret 0
+
+?sqrt_b2dec_decrem@@YAHXZ ENDP              ; sqrt_b2dec_decrem
 
 _TEXT   ENDS
 

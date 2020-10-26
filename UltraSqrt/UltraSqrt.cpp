@@ -56,6 +56,8 @@ typedef unsigned long udeclong;
 #define fDec "%0*lu%0*lu%0*lu"
 #define pDec(hi, mi, lo) \
         DECDIG-2*UDECLDIG, hi, UDECLDIG, mi, UDECLDIG, lo
+#define fDecNext "%0*lu%0*lu"
+#define pDecNext(next_hi, next_lo) UDECLDIG, next_hi, UDECLDIG, next_lo
 
 // line wrapping of the decimal output
 #define OUTPUT_WRAP 100
@@ -90,6 +92,8 @@ int sqrt_calc_error();
 int sqrt_subtr_next();
 int sqrt_b2dec_init();
 int sqrt_b2dec_next();
+int sqrt_b2dec_binrem();
+int sqrt_b2dec_decrem();
 
 int main(int argc, char* argv[])
 {
@@ -191,7 +195,7 @@ int main(int argc, char* argv[])
     ulonlong shift_stat = shift;
 
     // base remainder
-    ulonlong base_rem_pos = base[len] ? len : 0;
+    ulonlong base_rem_pos = len;
     ulonlong base_rem_val = base[len];
 
     // binary calculation time
@@ -225,7 +229,16 @@ int main(int argc, char* argv[])
         deci[3*i+2] = mi_dec;
         deci[3*i+3] = lo_dec;
     }
-    ulonlong b2dec_end = (res_end >= res_beg ? res_end - res_beg : 0);
+    if (res_beg > res_end) res_end = res_beg;
+    ulonlong b2dec_end = res_end - res_beg;
+
+    // binary to decimal "binary remainder"
+    sqrt_b2dec_binrem();
+    ulonlong b2dec_brem = res_beg[1];
+    // binary to decimal "next decimal digits"
+    sqrt_b2dec_decrem();
+    udeclong b2dec_next_hi = hi_dec;
+    udeclong b2dec_next_lo = lo_dec;
 
     // release memory with binary result
     free(binar);
@@ -266,6 +279,8 @@ int main(int argc, char* argv[])
     printf("* bi2dec start sz : " u8LL " %c-WORD(s)\n", b2dec_str, XWORD);
     printf("* bi2dec final sz : " u8LL " %c-WORD(s)\n", b2dec_end, XWORD);
     printf("* dec calc cycles : " u8LL " # iter(s)\n", dec_len);
+    printf("* bi2dec rem 1-val: " u016LLX "\n", b2dec_brem);
+    printf("* bi2dec next deci: " fDecNext "\n", pDecNext(b2dec_next_hi, b2dec_next_lo));
     printf("\n");
 
     // print the result

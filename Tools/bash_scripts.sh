@@ -27,8 +27,8 @@ ultrasqrt_1b1 () {
     $ultra_bin $i $l >"$file"
     echo
     fline=$(cat "$file" | wc -l)
-    head -n 28 -- "$file"
-    echo " ... $((fline-30)) line(s) ..."
+    head -n 30 -- "$file"
+    echo " ... $((fline-32)) line(s) ..."
     tail -n 02 -- "$file"
     echo
   done
@@ -55,20 +55,23 @@ ultrasqrt_par () {
   mkdir -p "${d}"
   st=$(date "+%s")
   for i in $num; do
-    u=$(ps -f | grep UltraSqrt | wc -l)
-    if [[ $u -lt $u_max ]]; then
-      dt=$(date "+%T")
-      echo "At $dt *** $i ***"
-      file="${d}/sqrt_${i}_${p}.txt"
-      echo "  ==> $file"
-      $ultra_bin $i $l >"$file"&
-    fi
-    u=$u_max
-    while [[ $u -ge $u_max ]]; do
-      sleep $sl
-      dt=$(date "+%T")
+    while [[ -n "$i" ]]; do
       u=$(ps -f | grep UltraSqrt | wc -l)
-      echo "$dt - running processes: $u" >&2
+      if [[ $u -lt $u_max ]]; then
+        dt=$(date "+%T")
+        echo "At $dt *** $i ***"
+        file="${d}/sqrt_${i}_${p}.txt"
+        echo "  ==> $file"
+        $ultra_bin $i $l >"$file"&
+        i=""
+      fi
+      u=$u_max
+      while [[ $u -ge $u_max ]]; do
+        sleep $sl
+        dt=$(date "+%T")
+        u=$(ps -f | grep UltraSqrt | wc -l)
+        echo "$dt - running processes: $u" >&2
+      done
     done
   done
   u=$u_max
@@ -87,8 +90,8 @@ ultrasqrt_par () {
     fline=$(cat "$file" | wc -l)
     echo "  <== $file"
     echo
-    head -n 28 -- "$file"
-    echo " ... $((fline-30)) line(s) ..."
+    head -n 30 -- "$file"
+    echo " ... $((fline-32)) line(s) ..."
     tail -n 02 -- "$file"
     echo
   done

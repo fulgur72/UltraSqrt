@@ -132,11 +132,12 @@ end:</Text-field>
 <Group autoexecute="true" labelreference="L34" drawlabel="true">
 <Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal">adjust_prob := proc(sq::integer, figures::integer)
   global Size, DecGrSize, log2_10;
-  local dec_sz, dec_fin_sz, bin_sz, bin_err_tv,
+  local dec_sz, dec_fin_sz, bin_sz, bin_ovr_bits, bin_err_tv,
     ee, num, l, n, nn, p0, p1, p2, c0, c1, c2,
     sqr_i, sqr_f;
   dec_sz := DecGrSize*ceil(figures/DecGrSize);
   bin_sz := ceil(dec_sz*log2_10/Size);
+  bin_ovr_bits := trunc(Size*bin_sz-dec_sz*log2_10);
   ee := trunc(log[4](sq));
   num := evalf(sqrt(sq)*2^(Size-1-ee));
   l := trunc(num);
@@ -165,10 +166,11 @@ end:</Text-field>
   printf(&quot;\134n&quot;);
   printf(&quot;* dec  fract part : %8d figure(s)\134n&quot;, dec_sz);
   printf(&quot;* bin  fract size : %8d %s-WORD(s)\134n&quot;, bin_sz, xWORD());
-  printf(&quot;\134n&quot;);
+  printf(&quot;* bin  over sized : ||  + %2d bit(s)\134n&quot;,</Font> bin_ovr_bits);
+<Font encoding="UTF-8">  printf(&quot;\134n&quot;);
   printf(&quot;* binary lead word: 0x%s\134n&quot;, num2hexstr(l, Size/4));
   printf(&quot;* binary next word: 0x%s\134n&quot;,</Font> num2hexstr(n, Size/4));
-<Font encoding="UTF-8">  printf(&quot;* binary res shift: &lt;&lt;    %d bits\134n&quot;,</Font> (Size-1-ee));
+<Font encoding="UTF-8">  printf(&quot;* binary res shift: &lt;&lt;    %2d bit(s)\134n&quot;,</Font> (Size-1-ee));
 <Font encoding="UTF-8">  printf(&quot;\134n&quot;);
   printf(&quot;~ next adapted +0 : %8d x %12.8f %%\134n&quot;, c0,</Font> 100*p0);
   printf(&quot;~ next adapted +1<Font encoding="UTF-8"> : %8d x %12.8f %%\134n&quot;, c1,</Font> 100*p1);
@@ -194,7 +196,8 @@ end:</Text-field>
   fi;
 <Font encoding="UTF-8">  printf(&quot;* bi2dec final sz : %8d %s-WORD(s)\134n&quot;, dec_fin_sz</Font>, xWORD());
   printf(&quot;* dec calc cycles : <Font encoding="UTF-8">%8d # iter(s)\134n&quot;, dec_sz/</Font>DecGrSize);
-  printf(&quot;? bi2dec rem 1-val: Ox0123456789ABCDEF<Font encoding="UTF-8">\134n&quot;);
+<Font encoding="UTF-8">  printf(&quot;\134n&quot;);
+</Font>  printf(&quot;? bi2dec rem 1-val: Ox0123456789ABCDEF<Font encoding="UTF-8">\134n&quot;);
 </Font>  printf(&quot;? bi2dec next deci: 123456789123456789<Font encoding="UTF-8">\134n&quot;);
   printf(&quot;\134n&quot;);
 </Font>  sqr_i := trunc(sqrt(sq));

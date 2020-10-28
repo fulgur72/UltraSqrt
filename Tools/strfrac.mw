@@ -164,9 +164,9 @@ printf<Font encoding="UTF-8">(&quot;      %10d = 0x%08X\134n&quot;, q, q);
 printf(&quot;\134n&quot;);
 </Font></Text-field>
 </Input>
-<Output><Text-field style="Line Printed Output" layout="Line Printed Output"> 3.32192809488736234787031942948 =~=</Text-field><Text-field style="Line Printed Output" layout="Line Printed Output">
-     3, 3/1, -0.321928
-     3, 10/3, .1140523844597098546301390385e-1
+<Output><Text-field style="Line Printed Output" layout="Line Printed Output"> 3.32192809488736234787031942948 =~=
+
+     3, 3/1, -0.321928</Text-field><Text-field style="Line Printed Output" layout="Line Printed Output">     3, 10/3, .1140523844597098546301390385e-1
      9, 93/28, -.49952345879091929889085805e-3
      2, 196/59, .10580341772239789239243493e-3
      2, 485/146, -.1028666818426567853860756e-4
@@ -182,16 +182,32 @@ printf(&quot;\134n&quot;);
 </Output>
 </Group>
 <Group hide-input="false" labelreference="L4" drawlabel="true">
-<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Font encoding="UTF-8"># Shortest exact match for 27 dec digit broups and 64 bin long binary Q-WORDS
-printf(&quot;==&gt; %8d decimal digits\134n&quot;, lcm(27,q)*64/gcd(64,p));
-printf(&quot;            ~=~\134n&quot;);</Font>
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Shortest exact match for 27 dec digit broups and 64 bin long binary Q-WORDS
+<Font encoding="UTF-8">printf(&quot;==&gt; %8d decimal digits\134n&quot;, lcm(27,q)*64/gcd(64,p));
+printf(&quot;         best match to\134n&quot;);</Font>
 <Font encoding="UTF-8">printf(&quot;    %8d binary Q-WORDS\134n&quot;, 27/gcd(27,q)*p/gcd(64,p));</Font></Text-field>
 </Input>
-<Output><Text-field style="Line Printed Output" layout="Line Printed Output">==&gt;  7474464 decimal digits</Text-field><Text-field style="Line Printed Output" layout="Line Printed Output">            ~=~
-      387963 binary Q-WORDS</Text-field>
+<Output><Text-field style="Line Printed Output" layout="Line Printed Output">==&gt;  7474464 decimal digits
+         best match to</Text-field><Text-field style="Line Printed Output" layout="Line Printed Output">      387963 binary Q-WORDS</Text-field>
 </Output>
 </Group>
 <Group labelreference="L7" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"># Shortest zero bits reserve
+dec := 0: res_bits := -1 : while res_bits &lt;&gt; 0 do
+  dec := dec+27;
+  bin := ceil(dec * p / q / 64);
+  res_bits := iquo (64 * bin * q - dec * p, q);
+od:
+<Font encoding="UTF-8">printf(&quot;==&gt; %8d decimal digits\134n&quot;, dec);
+printf(&quot;         well match to\134n&quot;);</Font>
+<Font encoding="UTF-8">printf(&quot;    %8d binary Q-WORDS\134n&quot;, bin);</Font></Text-field>
+</Input>
+<Output><Text-field style="Line Printed Output" layout="Line Printed Output">==&gt;     3564 decimal digits
+         well match to
+         185 binary Q-WORDS</Text-field>
+</Output>
+</Group>
+<Group labelreference="L8" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>
 </Group>

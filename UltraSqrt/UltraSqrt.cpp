@@ -28,6 +28,7 @@ typedef unsigned long udeclong;
 
 // printf formats
 #define uLL     "%llu"
+#define u2LL    "%2llu"
 #define u8LL    "%8llu"
 #define u016LLX "0x%016llX"
 
@@ -123,8 +124,10 @@ int main(int argc, char* argv[])
     const ulonlong WORDS = DECDIG * LG10_NUM, DECGROUPS = LG10_DEN * BINBITS;
     const ulonlong dec_len = (ulonlong) (arg_len + DECDIG-1) / DECDIG;
     const ulonlong len = (WORDS * dec_len + DECGROUPS-1) / DECGROUPS;
+    const ulonlong overbits = ( len * DECGROUPS - dec_len * WORDS ) / LG10_DEN;
     printf("* dec  fract part : " u8LL " figure(s)\n", DECDIG * dec_len);
     printf("* bin  fract size : " u8LL " %c-WORD(s)\n", len, XWORD);
+    printf("* bin  over sized : ||  + " u2LL " bit(s)\n", overbits);
     printf("\n");
 
     // start time
@@ -259,7 +262,7 @@ int main(int argc, char* argv[])
     // print statistics
     printf("* binary lead word: " u016LLX "\n", lead_stat);
     printf("* binary next word: " u016LLX "\n", next_stat);
-    printf("* binary res shift: <<    " uLL " bits\n", shift_stat);
+    printf("* binary res shift: <<    " u2LL " bit(s)\n", shift_stat);
     printf("\n");
     for (i = 0; i <= MAX_ADAPT; ++i) {
         ulonlong adapt = adapt_stat[i];
@@ -271,14 +274,14 @@ int main(int argc, char* argv[])
         printf("* binary remainder: !!! ERROR !!!\n");
     } else {
         printf("* binary rem t-pos: " u8LL " %s %c-WORD\n", base_rem_pos, TH(base_rem_pos), XWORD);
-        bool rem_too_low = (hi_err > 0 && hi_err >= base_rem_val);
-        printf("* binary rem t-val: " u016LLX "%s\n", base_rem_val, (rem_too_low ? " << !!!" : ""));
-        printf("* binary err t-val: " u016LLX "%s\n", hi_err,       (rem_too_low ? " >> !!!" : ""));
+        printf("* binary rem t-val: " u016LLX "\n", base_rem_val);
+        printf("* binary err t-val: " u016LLX "\n", hi_err);
     }
     printf("\n");
     printf("* bi2dec start sz : " u8LL " %c-WORD(s)\n", b2dec_str, XWORD);
     printf("* bi2dec final sz : " u8LL " %c-WORD(s)\n", b2dec_end, XWORD);
     printf("* dec calc cycles : " u8LL " # iter(s)\n", dec_len);
+    printf("\n");
     printf("* bi2dec rem 1-val: " u016LLX "\n", b2dec_brem);
     printf("* bi2dec next deci: " fDecNext "\n", pDecNext(b2dec_next_hi, b2dec_next_lo));
     printf("\n");

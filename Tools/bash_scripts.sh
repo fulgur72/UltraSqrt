@@ -27,8 +27,8 @@ ultrasqrt_1b1 () {
     $ultra_bin $i $l >"$file"
     echo
     fline=$(cat "$file" | wc -l)
-    head -n 30 -- "$file"
-    echo " ... $((fline-32)) line(s) ..."
+    head -n 32 -- "$file"
+    echo " ... $((fline-34)) line(s) ..."
     tail -n 02 -- "$file"
     echo
   done
@@ -90,8 +90,8 @@ ultrasqrt_par () {
     fline=$(cat "$file" | wc -l)
     echo "  <== $file"
     echo
-    head -n 30 -- "$file"
-    echo " ... $((fline-32)) line(s) ..."
+    head -n 32 -- "$file"
+    echo " ... $((fline-34)) line(s) ..."
     tail -n 02 -- "$file"
     echo
   done

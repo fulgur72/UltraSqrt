@@ -72,7 +72,7 @@ typedef unsigned long udeclong;
 
 // aux variables
 ulonlong num, shift;
-ulonlong lead, next;
+ulonlong next;
 
 // pointers and iterators
 ulonlong *bas_beg, *bas_end;
@@ -163,12 +163,7 @@ int main(int argc, char* argv[])
         res_end = rest + (i);
 
         // compute next QWORD
-        lead = *res_beg + 1;
-        if (lead == 0) {
-            next = *bas_beg;
-        } else {
-            sqrt_guess_next();
-        }
+        sqrt_guess_next();
 
         // check next QWORD and try to adapt it
         ulonlong next_guess = next;

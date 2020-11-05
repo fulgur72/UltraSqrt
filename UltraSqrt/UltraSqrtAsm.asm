@@ -23,7 +23,6 @@ EXTRN    ?bas_end@@3PEA_KEA :QWORD          ; bas_end
 EXTRN    ?res_beg@@3PEA_KEA :QWORD          ; res_beg
 EXTRN    ?res_mid@@3PEA_KEA :QWORD          ; res_mid
 EXTRN    ?res_end@@3PEA_KEA :QWORD          ; res_end
-EXTRN    ?lead@@3_KA        :QWORD          ; lead
 EXTRN    ?next@@3_KA        :QWORD          ; next
 EXTRN    ?hi_err@@3_KA      :QWORD          ; hi_err
 EXTRN    ?lo_err@@3_KA      :QWORD          ; lo_err
@@ -111,12 +110,20 @@ _TEXT   SEGMENT
 ;;***************************************************
 ?sqrt_guess_next@@YAHXZ PROC                ; sqrt_guess_next
 
-    ;; divide 'base[bas_beg]:base[bas_beg+1]' by 'lead' to get "initial" value of 'next'
-        mov rbx, ?lead@@3_KA                ; RBX <- lead
+    ;; read base and rest iterators
         mov rdi, ?bas_beg@@3PEA_KEA         ; RDI iter <- bas_beg
-        mov rdx, [rdi]                      ; RDX <- base[iter]
-        mov rax, [rdi+8h]                   ; RAX <- base[iter+1]
+        mov r8, ?res_beg@@3PEA_KEA          ; R8 iter <- bas_beg
+    ;; read 'base[beg]' and 'rest[beg]' and check if 'rest[beg]' != 0xFF..FF
+        mov rax, [rdi]                      ; RDX <- base[beg]
+        mov rbx, [r8]                       ; RBX <- rest[beg]
+        inc rbx                             ; ++RBX (=rest[beg]+1)
+        jz l_nodiv                          ; if ZF goto nodiv
+    ;; divide 'base[beg]:base[beg+1]' by 'rest[beg]'+1 to get "initial" value of 'next'
+        mov rdx, rax                        ; RDX <- RAX (=base[beg])
+        mov rax, [rdi+8h]                   ; RAX <- base[beg+1]
         div rbx                             ; RDX:RAX / RBX -> RAX, rest RDX
+    ;; return the result in 'next'
+    l_nodiv:
         mov ?next@@3_KA, rax                ; next <- RAX
 
     ret 0

@@ -143,7 +143,10 @@ end:</Text-field>
   l := trunc(num);
   n := trunc((num-l)*2^Size);
   nn := 2^Size-1-n;
-  if nn &lt;= l then
+  if n = 0 then
+    p0 := 1;
+    p1 := 1;
+  elif nn &lt;= l then
     p0 := evalf(1-nn/2/l);
     p1 := 1;
   elif nn &lt;= 2*l then
@@ -305,6 +308,16 @@ adjust_prob(2^30-1, figures);</Text-field>
 </Input>
 </Group>
 <Group labelreference="L61" drawlabel="true">
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^64 - 1 ) - maximal 64-bit value
+adjust_prob(2^64-1, figures);</Text-field>
+</Input>
+</Group>
+<Group labelreference="L62" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"># sqrt ( 2^64 - 2 ) - no adjust
+adjust_prob(2^64-2, figures);</Text-field>
+</Input>
+</Group>
+<Group labelreference="L63" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>
 </Group>
